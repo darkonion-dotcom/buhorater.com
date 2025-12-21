@@ -7,14 +7,14 @@ from supabase import create_client, Client
 
 app = Flask(__name__)
 CORS(app)
+
 URL = "https://bpiujyhyejolnthdezxf.supabase.co"
 KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwaXVqeWh5ZWpvbG50aGRlenhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwMDI4NzUsImV4cCI6MjA4MTU3ODg3NX0.pPjXHC2saUAZ81T36PSBRgQGbDqQfw6A_Jxf1R4XMrU"
 supabase: Client = create_client(URL, KEY)
 
-TABLA_PROFESORES = 'profesores' 
+TABLA_PROFESORES = 'maestros' 
 
 def extraer_nombres_del_pdf(pdf_path):
-    
     nombres_encontrados = set()
     patron_linea = re.compile(r"([A-ZÑ\s]{10,})\s+(\d+[A-Z]-[A-Z0-9]+)")
 
@@ -58,14 +58,13 @@ def procesar_horario():
     
     try:
         file.save(temp_path)
-    
+        
         lista_nombres_pdf = extraer_nombres_del_pdf(temp_path)
-    
+        
         maestros_encontrados_bd = []
         maestros_no_encontrados = []
 
         print(f"Buscando {len(lista_nombres_pdf)} maestros en Supabase...")
-
         for nombre_busqueda in lista_nombres_pdf:
             response = supabase.table(TABLA_PROFESORES)\
                 .select("*")\
@@ -77,9 +76,13 @@ def procesar_horario():
             else:
                 maestros_no_encontrados.append(nombre_busqueda)
 
+      
+        lista_final_nombres = [m['nombre'] for m in maestros_encontrados_bd] + maestros_no_encontrados
+
         return jsonify({
             "mensaje": "Búsqueda completada",
-            "encontrados": maestros_encontrados_bd,
+            "maestros": lista_final_nombres,       
+            "encontrados": maestros_encontrados_bd, 
             "no_encontrados": maestros_no_encontrados,
             "total_procesados": len(lista_nombres_pdf)
         })
@@ -89,6 +92,7 @@ def procesar_horario():
         return jsonify({"error": str(e)}), 500
 
     finally:
+       
         if os.path.exists(temp_path):
             os.remove(temp_path)
 
