@@ -478,26 +478,25 @@
             }
         });
 
-        async function handleFile(file) {
+       async function handleFile(file) {
             if (file.type !== 'application/pdf') {
                 alert('Por favor, sube solo archivos PDF.');
                 return;
             }
 
             const dropText = document.querySelector('.drop-text');
-            const originalText = dropText.innerText;
+            const originalText = dropText.innerText; // Guardamos el texto original
             dropText.innerText = "⏳ Analizando horario...";
 
             const formData = new FormData();
             formData.append('file', file);
 
-        
-            const URL_API = 'https://buhorater-backend.onrender.com/analizar-horario'
+            // 👇 TU URL DE RENDER
+            const URL_API = 'https://buhorater-backend.onrender.com/analizar-horario';
             
-            console.log("Conectando a Render:", URL_API); 
+            console.log("Conectando a:", URL_API);
 
             try {
-                // Hacemos el fetch a Render
                 const response = await fetch(URL_API, {
                     method: 'POST',
                     body: formData
@@ -508,20 +507,33 @@
                 }
 
                 const data = await response.json();
+                console.log("Respuesta del servidor:", data);
 
-                if (data.maestros && data.maestros.length > 0) {
-                    const listaNombres = data.maestros.map(n => n.trim()).join(',');
-                    const params = encodeURIComponent(listaNombres);
+                let nombresParaUrl = [];
+
+                if (data.encontrados && Array.isArray(data.encontrados)) {
+                    const nombresDeBD = data.encontrados.map(profesor => profesor.nombre);
+                    nombresParaUrl = nombresParaUrl.concat(nombresDeBD);
+                }
+
+                if (data.no_encontrados && Array.isArray(data.no_encontrados)) {
+                    nombresParaUrl = nombresParaUrl.concat(data.no_encontrados);
+                }
+
+                if (nombresParaUrl.length > 0) {
+                    const listaFinal = nombresParaUrl.map(n => n.trim()).join(',');
+                    const params = encodeURIComponent(listaFinal);
                     window.location.href = `Horario.html?profes=${params}`;
                 } else {
-                    alert("No pudimos extraer nombres claros. Intenta con un PDF original de la Unison.");
+                    alert("⚠️ El servidor se está despertando (puede tardar unos segundos). Por favor, intenta subir el PDF de nuevo en un momento.");
                 }
 
             } catch (error) {
                 console.error('Error detallado:', error);
-                alert("⚠️ Error: No se pudo conectar con el servidor en Render. Revisa la consola (F12) y asegúrate de haber puesto la URL correcta.");
+                alert("⚠️ Error: Probablemente el servidor esta dormido intente minimo 5 veces.");
             } finally {
-                dropText.innerText = originalText;
+                dropText.innerText = originalText; 
+                document.getElementById('fileInput').value = ''; 
             }
         }
 
