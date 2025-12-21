@@ -41,9 +41,8 @@ unirait26/
 ├── Politicas.html    # Privacy policy and terms of use
 ├── tool.py           # Python utility script
 └── styles.css        # Global styles
-
+```
 ---
-
 ## 🛡️ Security & Optimization
 
 ### Image Handling
@@ -66,7 +65,7 @@ We do not use user accounts to ensure total anonymity. Instead, we use **Fingerp
 
 This is a non-profit student project. Domain and maintenance costs come out of my own pocket. If this tool saved you from a bad class or helped you find the best mentor, **buy me a coffee!**
 
-<a href="https://www.google.com/search?q=https://www.buymeacoffee.com/starcatunison">
+<a href="https://www.buymeacoffee.com/starcatunison">
 <img src="https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee" />
 </a>
 
@@ -77,8 +76,4 @@ This is a non-profit student project. Domain and maintenance costs come out of m
 This project is licensed under the **MIT License**. Feel free to use the code to learn.
 
 **Developed with 💙 by a Semiconductor Engineering student @ Unison.**
-
 ```
-
----
-
