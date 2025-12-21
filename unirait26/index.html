@@ -491,11 +491,21 @@
             const formData = new FormData();
             formData.append('file', file);
 
+        
+            const URL_API = '';
+            
+            console.log("Conectando a Render:", URL_API); 
+
             try {
-                const response = await fetch('http://127.0.0.1:5000/analizar-horario', {
+                // Hacemos el fetch a Render
+                const response = await fetch(URL_API, {
                     method: 'POST',
                     body: formData
                 });
+
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.status}`);
+                }
 
                 const data = await response.json();
 
@@ -508,8 +518,8 @@
                 }
 
             } catch (error) {
-                console.error('Error:', error);
-                alert("Error al conectar con el servidor Python. Asegúrate de correr 'app.py'.");
+                console.error('Error detallado:', error);
+                alert("⚠️ Error: No se pudo conectar con el servidor en Render. Revisa la consola (F12) y asegúrate de haber puesto la URL correcta.");
             } finally {
                 dropText.innerText = originalText;
             }
@@ -679,3 +689,5 @@
     </script>
 </body>
 </html>
+
+```
