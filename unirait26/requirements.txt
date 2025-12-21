@@ -1,4 +1,6 @@
-flask
+Flask
 flask-cors
 pdfplumber
 supabase
+gunicorn
+pdfminer.six
