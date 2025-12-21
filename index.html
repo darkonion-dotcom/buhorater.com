@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Búho Rater - Busca a tu Profe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --primary: #004689;
+            --accent: #F1C40F;
+            --bg: #f3f4f6;
+            --text: #1f2937;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .drop-zone {
+            width: 100%;
+            max-width: 600px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 20px;
+            padding: 25px;
+            background-color: white;
+            cursor: pointer;
+            margin-bottom: 25px;
+            position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .drop-zone:hover {
+            border-color: var(--primary);
+            background-color: #e0f2fe;
+            transform: translateY(-2px);
+        }
+
+        .drop-zone.dragover {
+            background-color: #dbeafe;
+            border-color: var(--primary);
+            transform: scale(1.02);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .drop-zone-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .drop-icon {
+            font-size: 2rem;
+        }
+
+        .drop-text {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .drop-subtext {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 600px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            border: 2px solid #ddd;
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 70, 137, 0.3);
+        }
+
+        .filtros-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .filtros-container select {
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            background-color: white;
+            font-size: 0.95rem;
+            cursor: pointer;
+            outline: none;
+        }
+
+        #resultados {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 10px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+            border: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent);
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #111;
+        }
+
+        .card p.depto {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 5px 0 15px 0;
+            font-weight: 500;
+        }
+
+        .card .calificacion {
+            font-weight: 800;
+            color: #f39c12;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .card .btn-perfil {
+            margin-top: auto;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        #btnCargarMas {
+            margin: 30px 0;
+            padding: 12px 25px;
+            background-color: white;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            display: none;
+        }
+
+        #btnCargarMas:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            grid-column: 1 / -1;
+            color: #666;
+            margin-top: 20px;
+        }
+
+        .contador-container {
+            background-color: white;
+            color: var(--primary);
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .punto-rojo {
+            width: 10px;
+            height: 10px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            animation: palpitar 2s infinite;
+        }
+
+        @keyframes palpitar {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
+        .badge-collab-card {
+            background-color: #dbeafe;
+            color: #1e40af;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid #93c5fd;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 5px;
+        }
+
+        .main-footer {
+            width: 100%;
+            margin-top: 60px;
+            padding: 40px 20px;
+            background-color: white;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.02);
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .footer-link {
+            text-decoration: none;
+            color: #4b5563;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background-color: #f9fafb;
+        }
+
+        .footer-link:hover {
+            color: var(--primary);
+            background-color: #dbeafe;
+            transform: translateY(-2px);
+        }
+
+        .copyright {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            margin-top: 10px;
+        }
+
+        .heart {
+            color: #ef4444;
+            display: inline-block;
+            animation: palpitar 2s infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🦉 Búho Rater</h1>
+        <p>Encuentra y califica a tus profesores de la Unison</p>
+
+        <div class="drop-zone" id="dropZone">
+            <div class="drop-zone-content">
+                <div class="drop-icon">📄</div>
+                <span class="drop-text">Suelta tu horario aquí</span>
+                <span class="drop-subtext">o haz clic para buscar el PDF</span>
+            </div>
+            <input type="file" id="fileInput" accept=".pdf">
+        </div>
+
+        <div style="margin-top: -15px; margin-bottom: 25px; width: 100%; max-width: 600px;">
+            <div style="margin-bottom: 10px;">
+                <a href="#" id="btnToggleVideo" style="color: #64748b; text-decoration: none; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                    <span>📺</span> ¿No sabes cómo descargar tu horario? Ver tutorial
+                </a>
+            </div>
+
+            <div id="videoContainer" style="display: none; background: #000; border-radius: 12px; overflow: hidden; position: relative; padding-bottom: 56.25%; height: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <iframe id="youtubeFrame" src="" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+
+        <div class="contador-container">
+            <div class="punto-rojo"></div>
+            <span id="contador-texto">Cargando...</span> &nbsp; veces que un Búho no dejó morir a otro Búho 🦉❤️
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="buscador" placeholder="Escribe el nombre del profesor...">
+        </div>
+
+        <div class="filtros-container">
+            <select id="filtroDepto" onchange="resetearYPaginacion()">
+                <option value="todos">🏛️ Todos los Departamentos</option>
+
+                <optgroup label="📐 Exactas y Naturales">
+                    <option value="Matemáticas">🔢 Matemáticas</option>
+                    <option value="Física">⚛️ Física</option>
+                    <option value="Geología">🌋 Geología</option>
+                    <option value="Investigaciones Físicas">🔬 Investigaciones Físicas</option>
+                </optgroup>
+
+                <optgroup label="🩺 Salud y Biológicas">
+                    <option value="Agricultura">🌱 Agricultura y Ganadería</option>
+                    <option value="Ciencias Químico Biológicas">🧪 Químico Biológicas</option>
+                    <option value="Enfermería">💉 Enfermería</option>
+                    <option value="Medicina">🏥 Medicina y Salud</option>
+                    <option value="Investigaciones Científicas">🐚 Dictus (Investigación)</option>
+                </optgroup>
+
+                <optgroup label="⚙️ Ingeniería">
+                    <option value="Ingeniería Civil">🏗️ Ingeniería Civil</option>
+                    <option value="Ingeniería Industrial">🏭 Ingeniería Industrial</option>
+                    <option value="Ingeniería Química">⚗️ Ingeniería Química</option>
+                    <option value="Investigación en Polímeros">🧪 Polímeros</option>
+                </optgroup>
+
+                <optgroup label="💰 Económicas y Administrativas">
+                    <option value="Contabilidad">📊 Contabilidad</option>
+                    <option value="Economía">💹 Economía</option>
+                    <option value="Administración">💼 Administración</option>
+                </optgroup>
+
+                <optgroup label="⚖️ Ciencias Sociales">
+                    <option value="Derecho">⚖️ Derecho</option>
+                    <option value="Psicología">🧠 Psicología y Comunicación</option>
+                    <option value="Sociología">🤝 Sociología y Admón Pública</option>
+                    <option value="Trabajo Social">👨‍👩‍👧 Trabajo Social</option>
+                    <option value="Bellas Artes">🎨 Bellas Artes</option>
+                    <option value="Letras y Lingüística">📚 Letras y Lingüística</option>
+                    <option value="Lenguas Extranjeras">🗣️ Lenguas Extranjeras</option>
+                </optgroup>
+            </select>
+            <select id="filtroOrden" onchange="resetearYPaginacion()">
+                <option value="nombre">🔤 Nombre (A-Z)</option>
+                <option value="mejor">⭐ Mejor Calificados</option>
+                <option value="peor">💀 Peores Calificados</option>
+            </select>
+        </div>
+    </header>
+
+    <div id="resultados"></div>
+
+    <button id="btnCargarMas" onclick="aplicarFiltros()">⬇️ Cargar más profesores...</button>
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="Politicas.html" class="footer-link">📜 Políticas y Filosofía</a>
+                <a href="https://forms.gle/zycskRMqps41jPSM9" target="_blank" class="footer-link">🐞 Reportar Bug / Agregar Profe</a>
+                <a href="mailto:juanfernandoincognito@gmail.com" class="footer-link">✉️ Contacto</a>
+            </div>
+
+            <div class="copyright">
+                <p>Hecho con <span class="heart">❤️</span> por un estudiante de Ingeniería.</p>
+                <p style="font-size: 0.75rem; opacity: 0.8;">Búho Rater es un proyecto independiente y no está afiliado a la Universidad de Sonora.</p>
+                <p>© 2025 Búho Rater</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                handleFile(fileInput.files[0]);
+            }
+        });
+
+        async function handleFile(file) {
+            if (file.type !== 'application/pdf') {
+                alert('Por favor, sube solo archivos PDF.');
+                return;
+            }
+
+            const dropText = document.querySelector('.drop-text');
+            const originalText = dropText.innerText;
+            dropText.innerText = "⏳ Analizando horario...";
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/analizar-horario', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.maestros && data.maestros.length > 0) {
+                    const listaNombres = data.maestros.map(n => n.trim()).join(',');
+                    const params = encodeURIComponent(listaNombres);
+                    window.location.href = `Horario.html?profes=${params}`;
+                } else {
+                    alert("No pudimos extraer nombres claros. Intenta con un PDF original de la Unison.");
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert("Error al conectar con el servidor Python. Asegúrate de correr 'app.py'.");
+            } finally {
+                dropText.innerText = originalText;
+            }
+        }
+
+        const SUPABASE_URL = 'https://bpiujyhyejolnthdezxf.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwaXVqeWh5ZWpvbG50aGRlenhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwMDI4NzUsImV4cCI6MjA4MTU3ODg3NX0.pPjXHC2saUAZ81T36PSBRgQGbDqQfw6A_Jxf1R4XMrU';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const input = document.getElementById('buscador');
+        const grid = document.getElementById('resultados');
+        const btnCargarMas = document.getElementById('btnCargarMas');
+        let paginaActual = 0;
+        const tamanoPagina = 48;
+        let resultadosGlobales = [];
+
+        function resetearYPaginacion() {
+            grid.innerHTML = '';
+            paginaActual = 0;
+            aplicarFiltros();
+        }
+
+        async function aplicarFiltros() {
+            const depto = document.getElementById('filtroDepto').value;
+            const orden = document.getElementById('filtroOrden').value;
+            const texto = input.value.trim();
+            if (texto.length >= 3) {
+                btnCargarMas.style.display = 'none';
+                await buscar(texto);
+            } else {
+                const desde = paginaActual * tamanoPagina;
+                const hasta = desde + tamanoPagina - 1;
+                try {
+                    let query = _supabase.from('maestros');
+                    if (depto !== 'todos') {
+                        query = query.select('*, departamentos!inner(nombre)', { count: 'exact' }).ilike('departamentos.nombre', `%${depto}%`);
+                    } else {
+                        query = query.select('*, departamentos(nombre)', { count: 'exact' });
+                    }
+                    if (orden === 'nombre') {
+                        query = query.order('nombre', { ascending: true });
+                    } else if (orden === 'mejor') {
+                        query = query.order('es_colaborador', { ascending: false });
+                        query = query.order('promedio_calidad', { ascending: false, nullsFirst: false });
+                    } else if (orden === 'peor') {
+                        query = query.order('promedio_calidad', { ascending: true, nullsFirst: false });
+                    }
+                    const { data, count, error } = await query.range(desde, hasta);
+                    if (error) throw error;
+
+                    renderizar(data, paginaActual > 0);
+                    if (count > hasta + 1) {
+                        btnCargarMas.style.display = 'block';
+                        paginaActual++;
+                    } else {
+                        btnCargarMas.style.display = 'none';
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+
+        async function buscar(t) {
+            grid.innerHTML = '<div class="loading">Buscando...</div>';
+            const palabras = t.trim().split(/\s+/);
+            let query = _supabase
+                .from('maestros')
+                .select('*, departamentos(nombre)');
+
+            palabras.forEach(palabra => {
+                if (palabra.length > 0) {
+                    query = query.ilike('nombre', `%${palabra}%`);
+                }
+            });
+
+            const { data } = await query
+                .order('es_colaborador', { ascending: false })
+                .limit(100);
+
+            renderizar(data || [], false);
+        }
+
+        function renderizar(lista, append = false) {
+            if (!append) grid.innerHTML = '';
+            if (!lista || lista.length === 0) {
+                if (!append) grid.innerHTML = '<div class="loading">No hay resultados 🤷‍♂️</div>';
+                return;
+            }
+            const BUHO = 'https://ui-avatars.com/api/?name=Buho&background=0D8ABC&color=fff&size=128';
+
+            lista.forEach(p => {
+                const prom = p.promedio_calidad ? parseFloat(p.promedio_calidad).toFixed(1) : 'N/A';
+                const badgeHtml = p.es_colaborador ? `<div class="badge-collab-card">🛠️ Colaborador</div>` : '';
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${p.foto_url || BUHO}" onerror="this.src='${BUHO}'">
+                    <h3>${p.nombre}</h3>
+                    ${badgeHtml}
+                    <p class="depto">${p.departamentos?.nombre || 'General'}</p>
+                    <div class="calificacion">⭐ ${prom}</div>
+                    <a href="Perfil.html?id=${p.id}" class="btn-perfil">Ver Reseñas</a>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        let debounceTimer;
+        input.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            if (e.target.value.trim().length === 0) {
+                resetearYPaginacion();
+                return;
+            }
+            if (e.target.value.trim().length < 3) return;
+            debounceTimer = setTimeout(() => aplicarFiltros(), 300);
+        });
+
+        window.onload = () => resetearYPaginacion();
+
+        async function iniciarContadorEnVivo() {
+            const contadorElemento = document.getElementById('contador-texto');
+
+            async function actualizar() {
+                try {
+                    const { count, error } = await _supabase
+                        .from('resenas')
+                        .select('*', { count: 'exact', head: true });
+
+                    if (error) throw error;
+
+                    contadorElemento.innerText = count.toLocaleString();
+
+                } catch (err) {
+                    console.error("Error en contador:", err);
+                }
+            }
+
+            actualizar();
+            setInterval(actualizar, 5000);
+        }
+
+        iniciarContadorEnVivo();
+
+        const btnToggle = document.getElementById('btnToggleVideo');
+        const container = document.getElementById('videoContainer');
+        const iframe = document.getElementById('youtubeFrame');
+        const YOUTUBE_ID = "eb3FIgHIsMY";
+
+        btnToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                iframe.src = `https://www.youtube.com/embed/${YOUTUBE_ID}?autoplay=1`;
+                btnToggle.innerHTML = "❌ Cerrar tutorial";
+            } else {
+                container.style.display = 'none';
+                iframe.src = "";
+                btnToggle.innerHTML = "<span>📺</span> ¿No sabes cómo descargar tu horario? Ver tutorial";
+            }
+        });
+    </script>
+</body>
+</html>

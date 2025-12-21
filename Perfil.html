@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil del Maestro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+    <style>
+        :root {
+            --primary: #004689;
+            --accent: #F1C40F;
+            --bg: #f3f4f6;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .profile-header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .btn-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--accent);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+        }
+
+        .stat-box strong {
+            display: block;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .review-form-container {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-top: 20px;
+            border: 1px solid #f1f5f9;
+            margin-bottom: 20px;
+        }
+
+        .form-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        .selectors-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-label {
+            font-weight: 600;
+            color: #4b5563;
+            font-size: 0.9rem;
+        }
+
+        .modern-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background-color: #f8fafc;
+            font-size: 1rem;
+            color: #334155;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+
+        .modern-select:focus {
+            border-color: var(--primary);
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(0, 70, 137, 0.1);
+        }
+
+        .modern-textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            color: #334155;
+            outline: none;
+            transition: all 0.2s;
+            box-sizing: border-box;
+            resize: none;
+        }
+
+        .modern-textarea:focus {
+            border-color: var(--primary);
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(0, 70, 137, 0.1);
+        }
+
+        .modern-textarea::placeholder {
+            color: #94a3b8;
+        }
+
+        .btn-submit {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-submit:hover {
+            background-color: #003366;
+            transform: translateY(-2px);
+        }
+
+        @media (min-width: 600px) {
+            .btn-submit {
+                width: auto;
+            }
+        }
+
+        .review-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .review-meta {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .badge {
+            background: #eee;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .badge-collab {
+            background-color: #dbeafe;
+            color: #1e40af;
+            font-size: 0.5em;
+            padding: 5px 10px;
+            border-radius: 20px;
+            vertical-align: middle;
+            margin-left: 10px;
+            border: 1px solid #93c5fd;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="maestro-info" class="profile-header">
+            <a href="index.html" class="btn-back">← Volver</a>
+            <p>Cargando perfil...</p>
+        </div>
+
+        <div class="review-form-container">
+            <h3 class="form-title">📝 Deja tu reseña anónima</h3>
+
+            <div class="selectors-row">
+                <div class="input-group">
+                    <label class="input-label">Calidad:</label>
+                    <select id="in-calidad" class="modern-select">
+                        <option value="5"> 5 - Excelente</option>
+                        <option value="4"> 4 - Buena</option>
+                        <option value="3"> 3 - Regular</option>
+                        <option value="2"> 2 - Mala</option>
+                        <option value="1"> 1 - Terrible💀</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Dificultad:</label>
+                    <select id="in-dificultad" class="modern-select">
+                        <option value="1"> 1 - Barco (Muy fácil)</option>
+                        <option value="2"> 2 - Fácil</option>
+                        <option value="3"> 3 - Normal</option>
+                        <option value="4"> 4 - Difícil</option>
+                        <option value="5"> 5 - Preparate para no dormir💀</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <textarea id="in-texto" class="modern-textarea" placeholder="¿Qué tal la clase? ¿Deja mucha tarea? (Sé respetuoso)"></textarea>
+            </div>
+
+            <button id="btn-enviar" onclick="enviarResena()" class="btn-submit" disabled>Cargando seguridad...</button>
+        </div>
+
+        <h3 style="color: #666;">Reseñas de estudiantes:</h3>
+        <div id="lista-resenas"></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://bpiujyhyejolnthdezxf.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwaXVqeWh5ZWpvbG50aGRlenhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwMDI4NzUsImV4cCI6MjA4MTU3ODg3NX0.pPjXHC2saUAZ81T36PSBRgQGbDqQfw6A_Jxf1R4XMrU';
+
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const params = new URLSearchParams(window.location.search);
+        const maestroId = params.get('id');
+        let visitorId = null;
+        const BUHO_DEFAULT = 'https://ui-avatars.com/api/?name=Buho&background=0D8ABC&color=fff&size=200';
+
+        function optimizarImagen(url) {
+            if (!url) return BUHO_DEFAULT;
+            if (url.includes('cloudinary')) {
+                return url.replace('/upload/', '/upload/f_auto,q_auto,w_200,c_fill/');
+            }
+            return url;
+        }
+
+        (async () => {
+            try {
+                const fp = await FingerprintJS.load();
+                const result = await fp.get();
+                visitorId = result.visitorId;
+
+                const btn = document.getElementById('btn-enviar');
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                btn.style.cursor = "pointer";
+                btn.innerText = "Publicar Reseña";
+            } catch (e) {
+                console.error(e);
+            }
+        })();
+
+        async function cargarPerfil() {
+            if (!maestroId) {
+                window.location.href = 'index.html';
+                return;
+            }
+            const { data: profe, error } = await _supabase
+                .from('maestros')
+                .select('*, departamentos(nombre)')
+                .eq('id', maestroId)
+                .maybeSingle();
+
+            if (error) {
+                console.error("Error Supabase:", error);
+                alert("Error cargando perfil. Revisa la consola.");
+                return;
+            }
+
+            if (profe) {
+                const badgeHtml = profe.es_colaborador
+                    ? `<span class="badge-collab" title="Este profesor ayuda a mejorar la plataforma">🛠️ Colaborador</span>`
+                    : '';
+
+                const foto = optimizarImagen(profe.foto_url);
+
+                document.getElementById('maestro-info').innerHTML = `
+                    <a href="index.html" class="btn-back">← Volver</a>
+                    <img src="${foto}" class="profile-img" onerror="this.src='${BUHO_DEFAULT}'">
+                    <h1>${profe.nombre} ${badgeHtml}</h1>
+                    <p style="color:#666">${profe.departamentos?.nombre || 'Unison'}</p>
+                    
+                    <div class="stats">
+                        <div class="stat-box"><strong>⭐ ${profe.promedio_calidad?.toFixed(1) || '-'}</strong>Calidad</div>
+                        <div class="stat-box"><strong>🔥 ${profe.promedio_dificultad?.toFixed(1) || '-'}</strong>Dificultad</div>
+                        <div class="stat-box"><strong>💬 ${profe.total_resenas || 0}</strong>Reseñas</div>
+                    </div>
+                `;
+            } else {
+                document.getElementById('maestro-info').innerHTML = `
+                    <a href="index.html" class="btn-back">← Volver</a>
+                    <p>No se encontró al profesor (ID inválido o eliminado).</p>
+                `;
+            }
+
+            cargarResenas();
+        }
+
+        async function cargarResenas() {
+            const { data: resenas } = await _supabase
+                .from('resenas')
+                .select('*')
+                .eq('maestro_id', maestroId)
+                .order('fecha', { ascending: false });
+
+            const divLista = document.getElementById('lista-resenas');
+            divLista.innerHTML = '';
+
+            if (resenas && resenas.length > 0) {
+                resenas.forEach(r => {
+                    divLista.innerHTML += `
+                        <div class="review-card">
+                            <div class="review-meta">
+                                <span class="badge">⭐ Calidad: ${r.calidad}</span>
+                                <span class="badge">🔥 Dificultad: ${r.dificultad}</span>
+                                <span style="float:right">${new Date(r.fecha).toLocaleDateString()}</span>
+                            </div>
+                            <p>${r.texto || 'Sin comentario.'}</p>
+                        </div>
+                    `;
+                });
+            } else {
+                divLista.innerHTML = '<p style="text-align:center; color:#999">Sé el primero en calificar a este profe.</p>';
+            }
+        }
+
+        async function enviarResena() {
+            if (!visitorId) return;
+
+            const { data: check } = await _supabase
+                .from('resenas')
+                .select('id')
+                .eq('maestro_id', maestroId)
+                .eq('device_id', visitorId);
+
+            if (check && check.length > 0) {
+                alert("Solo se permite una reseña por profesor.");
+                return;
+            }
+
+            const calidad = document.getElementById('in-calidad').value;
+            const dificultad = document.getElementById('in-dificultad').value;
+            const texto = document.getElementById('in-texto').value;
+
+            if (!texto.trim()) { alert("Escribe un comentario por favor."); return; }
+
+            const { error } = await _supabase.from('resenas').insert({
+                maestro_id: maestroId,
+                calidad: parseInt(calidad),
+                dificultad: parseInt(dificultad),
+                texto: texto,
+                device_id: visitorId
+            });
+
+            if (error) {
+                console.error(error);
+                alert("Error al enviar reseña. Verifica permisos en Supabase.");
+            } else {
+                alert("¡Reseña enviada! Gracias.");
+                document.getElementById('in-texto').value = '';
+                cargarPerfil();
+            }
+        }
+
+        cargarPerfil();
+    </script>
+</body>
+</html>

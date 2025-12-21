@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tu Horario - Búho Rater</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root { --primary: #004689; --accent: #F1C40F; --bg: #f3f4f6; --text: #1f2937; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 40px 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh;
+        }
+        
+        /* HEADER MEJORADO */
+        header { 
+            text-align: center; 
+            margin-bottom: 40px; 
+            width: 100%; 
+            max-width: 800px; 
+        }
+        
+        h1 { 
+            color: var(--primary); 
+            font-size: 2.5rem; 
+            margin: 0 0 10px 0; 
+            letter-spacing: -1px;
+        }
+        
+        .subtitle { 
+            color: #64748b; 
+            font-size: 1.1rem; 
+            margin-bottom: 30px; 
+        }
+
+        /* CAJA DE COMPARTIR ESTILO "INPUT GROUP" */
+        .share-wrapper {
+            background: white;
+            padding: 10px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 600px; /* Ancho máximo controlado */
+            margin: 0 auto; /* Centrado */
+            border: 1px solid #e2e8f0;
+        }
+
+        .share-input {
+            flex: 1; /* Ocupa todo el espacio disponible */
+            border: none;
+            background: #f1f5f9;
+            padding: 12px 15px;
+            border-radius: 10px;
+            color: #475569;
+            font-family: monospace;
+            font-size: 0.9rem;
+            outline: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; /* Puntos suspensivos si es muy largo */
+        }
+
+        .btn-share {
+            background-color: var(--accent);
+            color: #0f172a;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap; /* Evita que el texto se rompa */
+            box-shadow: 0 4px 6px -1px rgba(241, 196, 15, 0.4);
+        }
+
+        .btn-share:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 15px -3px rgba(241, 196, 15, 0.5);
+        }
+        
+        .btn-share:active { transform: translateY(0); }
+
+        /* GRID CENTRADO Y ALINEADO */
+        #resultados { 
+            display: grid; 
+            /* Esto crea columnas automáticas pero centradas */
+            grid-template-columns: repeat(auto-fit, minmax(280px, 320px)); 
+            justify-content: center; /* Centra las tarjetas horizontalmente */
+            gap: 25px; 
+            width: 100%; 
+            max-width: 1200px; 
+            margin-top: 20px;
+        }
+
+        .card { 
+            background: white; 
+            border-radius: 16px; 
+            padding: 25px; 
+            text-align: center; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); 
+            border: 1px solid #f1f5f9; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .card img { 
+            width: 90px; 
+            height: 90px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            border: 3px solid var(--accent); 
+            margin-bottom: 15px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card h3 { margin: 0; font-size: 1.15rem; color: #1e293b; margin-bottom: 5px; }
+        .card p.depto { font-size: 0.85rem; color: #64748b; margin: 0 0 15px 0; font-weight: 500; }
+        .card .calificacion { font-weight: 800; color: #d97706; margin-bottom: 20px; font-size: 1.2rem; background: #fffbeb; padding: 5px 15px; border-radius: 20px; }
+        
+        .card .btn-perfil { 
+            margin-top: auto; 
+            background-color: white; 
+            color: var(--primary); 
+            border: 2px solid var(--primary);
+            text-decoration: none; 
+            padding: 10px 20px; 
+            border-radius: 8px; 
+            font-size: 0.9rem; 
+            font-weight: 600;
+            transition: all 0.2s;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .card .btn-perfil:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        /* ESTADOS DE CARGA / ERROR */
+        .loading-container {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .emoji-state { font-size: 3rem; margin-bottom: 10px; }
+
+        /* BOTÓN VOLVER */
+        .btn-back { 
+            margin-top: 50px; 
+            color: #64748b; 
+            text-decoration: none; 
+            font-weight: 600; 
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            transition: background 0.2s;
+        }
+        .btn-back:hover {
+            background-color: #e2e8f0;
+            color: var(--text);
+        }
+
+        @media (max-width: 600px) {
+            .share-wrapper { flex-direction: column; padding: 15px; }
+            .btn-share { width: 100%; }
+            .share-input { width: 100%; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>📅 Horario Analizado</h1>
+        <p class="subtitle">Aquí están los profesores encontrados en tu PDF.</p>
+        
+        <div class="share-wrapper">
+            <input type="text" class="share-input" id="shareInput" readonly value="Generando enlace...">
+            <button class="btn-share" onclick="copiarLink()">
+                🔗 Copiar Link
+            </button>
+        </div>
+    </header>
+
+    <div id="resultados">
+        <div class="loading-container">
+            <div class="emoji-state">🔍</div>
+            <p>Analizando profesores...</p>
+        </div>
+    </div>
+
+    <a href="index.html" class="btn-back">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Volver al inicio
+    </a>
+
+    <script>
+        // --- LÓGICA DE JAVASCRIPT ---
+        
+        const SUPABASE_URL = 'https://bpiujyhyejolnthdezxf.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwaXVqeWh5ZWpvbG50aGRlenhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwMDI4NzUsImV4cCI6MjA4MTU3ODg3NX0.pPjXHC2saUAZ81T36PSBRgQGbDqQfw6A_Jxf1R4XMrU';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const grid = document.getElementById('resultados');
+        const shareInput = document.getElementById('shareInput');
+
+        // Poner la URL actual en el input al cargar
+        shareInput.value = window.location.href;
+
+        function copiarLink() {
+            // Copiar desde el input es más compatible
+            shareInput.select();
+            shareInput.setSelectionRange(0, 99999); // Para móviles
+            
+            navigator.clipboard.writeText(shareInput.value).then(() => {
+                const btn = document.querySelector('.btn-share');
+                const original = btn.innerHTML;
+                btn.innerHTML = "✅ ¡Copiado!";
+                btn.style.backgroundColor = "#4ade80"; // Verde éxito
+                setTimeout(() => {
+                    btn.innerHTML = original;
+                    btn.style.backgroundColor = "var(--accent)";
+                }, 2000);
+            });
+        }
+
+        async function cargarHorario() {
+            const params = new URLSearchParams(window.location.search);
+            const profesParam = params.get('profes');
+
+            if (!profesParam) {
+                grid.innerHTML = `
+                    <div class="loading-container">
+                        <div class="emoji-state">🤷‍♂️</div>
+                        <p>No se encontraron datos en el enlace.</p>
+                    </div>`;
+                return;
+            }
+
+            const rawNombres = decodeURIComponent(profesParam).split(',');
+
+            try {
+                // --- LÓGICA DE BÚSQUEDA ROBUSTA (PARALELA) ---
+                const promesasBusqueda = rawNombres.map(async (nombrePDF) => {
+                    // Limpieza
+                    const palabras = nombrePDF.trim().split(/\s+/);
+                    const palabrasClave = palabras.filter(w => w.length > 2);
+                    const busquedaTokens = palabrasClave.length > 0 ? palabrasClave : palabras;
+                    
+                    // Tomamos máx 2 palabras (apellidos)
+                    const tokensFinales = busquedaTokens.slice(0, 2);
+
+                    let query = _supabase.from('maestros').select('*, departamentos(nombre)');
+                    
+                    tokensFinales.forEach(token => {
+                        query = query.ilike('nombre', `%${token}%`);
+                    });
+
+                    const { data } = await query.limit(1);
+                    return data ? data[0] : null;
+                });
+
+                const resultados = await Promise.all(promesasBusqueda);
+                const encontrados = resultados.filter(Boolean);
+                
+                // Eliminar duplicados
+                const unicos = [...new Map(encontrados.map(item => [item['id'], item])).values()];
+
+                renderizar(unicos);
+
+            } catch (err) {
+                console.error(err);
+                grid.innerHTML = `
+                    <div class="loading-container">
+                        <div class="emoji-state">❌</div>
+                        <p>Ocurrió un error al conectar con la base de datos.</p>
+                    </div>`;
+            }
+        }
+
+        function renderizar(lista) {
+            grid.innerHTML = '';
+            
+            if (lista.length === 0) {
+                grid.innerHTML = `
+                    <div class="loading-container">
+                        <div class="emoji-state">😕</div>
+                        <h3>No encontramos coincidencias</h3>
+                        <p style="color: #64748b">Los nombres del PDF no coincidieron con nuestra base de datos.</p>
+                    </div>`;
+                return;
+            }
+
+            const BUHO = 'https://ui-avatars.com/api/?name=Buho&background=0D8ABC&color=fff&size=128';
+            
+            lista.forEach(p => {
+                const prom = p.promedio_calidad ? parseFloat(p.promedio_calidad).toFixed(1) : 'N/A';
+                
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${p.foto_url || BUHO}" onerror="this.src='${BUHO}'">
+                    <h3>${p.nombre}</h3>
+                    <p class="depto">${p.departamentos?.nombre || 'General'}</p>
+                    <div class="calificacion">⭐ ${prom}</div>
+                    <a href="Perfil.html?id=${p.id}" class="btn-perfil" target="_blank">Ver Reseñas</a>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        window.onload = cargarHorario;
+    </script>
+</body>
+</html>
