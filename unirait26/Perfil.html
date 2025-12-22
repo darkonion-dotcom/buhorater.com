@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil del Maestro</title>
+    <meta name="description" content="Lee reseñas y calificaciones de profesores de la Universidad de Sonora.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
@@ -291,6 +292,35 @@
             return url;
         }
 
+        function inyectarSchema(profesor) {
+            const scriptJSON = document.createElement('script');
+            scriptJSON.type = 'application/ld+json';
+            
+            const datos = {
+              "@context": "https://schema.org/",
+              "@type": "Person",
+              "name": profesor.nombre,
+              "jobTitle": "Profesor",
+              "affiliation": {
+                "@type": "Organization",
+                "name": "Universidad de Sonora"
+              },
+              "image": profesor.foto_url || BUHO_DEFAULT
+            };
+
+            if (profesor.promedio_calidad) {
+                datos.aggregateRating = {
+                    "@type": "AggregateRating",
+                    "ratingValue": profesor.promedio_calidad,
+                    "bestRating": "5",
+                    "ratingCount": profesor.total_resenas || "1"
+                };
+            }
+
+            scriptJSON.text = JSON.stringify(datos);
+            document.head.appendChild(scriptJSON);
+        }
+
         (async () => {
             try {
                 const fp = await FingerprintJS.load();
@@ -325,6 +355,15 @@
             }
 
             if (profe) {
+                document.title = `${profe.nombre} - Reseñas y Calificaciones | Búho Rater`;
+                const metaDescription = document.querySelector('meta[name="description"]');
+                if (metaDescription) {
+                    metaDescription.setAttribute("content", 
+                        `Lee lo que dicen los alumnos de la Unison sobre ${profe.nombre}. Departamento: ${profe.departamentos?.nombre || 'General'}. Calificación promedio: ${profe.promedio_calidad?.toFixed(1) || 'N/A'}.`
+                    );
+                }
+                inyectarSchema(profe);
+
                 const badgeHtml = profe.es_colaborador
                     ? `<span class="badge-collab" title="Este profesor ayuda a mejorar la plataforma">🛠️ Colaborador</span>`
                     : '';

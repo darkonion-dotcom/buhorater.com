@@ -24,10 +24,12 @@ This project is built on a modern **Serverless** architecture to ensure high sca
 | Component | Technology | Description |
 | :--- | :--- | :--- |
 | **Frontend** | HTML5, CSS3, JS | Vanilla JavaScript (No heavy frameworks). |
+| **Backend** | Python (Flask) | API service for parsing PDF schedules using `pdfplumber`. |
+| **Backend Hosting** | Render | Cloud hosting for the Python backend service. |
 | **Database** | Supabase | PostgreSQL in the cloud for real-time data. |
 | **Storage** | Cloudinary | Hosting and real-time image optimization. |
 | **Security** | FingerprintJS | Unique device identification to limit voting. |
-| **Hosting** | Vercel | Continuous deployment and custom domain. |
+| **Frontend Hosting** | Vercel | Continuous deployment and custom domain. |
 
 ---
 
@@ -39,6 +41,7 @@ unirait26/
 ├── Perfil.html       # Individual professor profile & Review form
 ├── Horario.html      # Class schedule visualization
 ├── Politicas.html    # Privacy policy and terms of use
+├── dictionary.html   # Full list of teachers.
 ├── tool.py           # Python utility script
 └── styles.css        # Global styles
 ```
@@ -76,4 +79,3 @@ This is a non-profit student project. Domain and maintenance costs come out of m
 This project is licensed under the **MIT License**. Feel free to use the code to learn.
 
 **Developed with 💙 by a Semiconductor Engineering student @ Unison.**
-```
