@@ -11,7 +11,7 @@
     <style>
         :root {
             --primary: #004689;
-            --accent: #F1C40F;
+            --accent: #710ff1;
             --bg: #f3f4f6;
         }
 
@@ -224,6 +224,45 @@
             align-items: center;
             gap: 4px;
         }
+        .bmc-floating-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #FFDD00; 
+        color: #000;
+        padding: 12px 20px;
+        border-radius: 50px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        z-index: 1000; 
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: 2px solid #fff; 
+    }
+
+    .bmc-floating-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        background-color: #F1C40F;
+    }
+
+    .bmc-icon {
+        font-size: 1.2rem;
+    }
+
+    @media (max-width: 400px) {
+        .bmc-text {
+            display: none;
+        }
+        .bmc-floating-btn {
+            padding: 12px;
+            border-radius: 50%;
+        }
+    }
     </style>
 </head>
 <body>
@@ -460,5 +499,9 @@
 
         cargarPerfil();
     </script>
+    <a href="https://www.buymeacoffee.com/starcatunison" target="_blank" class="bmc-floating-btn">
+    <span class="bmc-icon">☕</span>
+    <span class="bmc-text">Invítame un café</span>
+</a>
 </body>
 </html>
