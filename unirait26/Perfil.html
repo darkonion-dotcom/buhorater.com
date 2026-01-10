@@ -2,314 +2,265 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil del Maestro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Perfil del Maestro - Búho Rater</title>
     <meta name="description" content="Lee reseñas y calificaciones de profesores de la Universidad de Sonora.">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+
     <style>
         :root {
             --primary: #004689;
-            --accent: #710ff1;
-            --bg: #f3f4f6;
+            --primary-dark: #003366;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --radius-std: 8px;
+            --input-height: 48px;
         }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg);
+            background: var(--bg-body);
+            color: var(--text-main);
             margin: 0;
-            padding: 20px;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
         }
 
-        .container {
-            max-width: 800px;
+        .navbar {
             width: 100%;
-        }
-
-        .profile-header {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            text-align: center;
-            margin-bottom: 20px;
-            position: relative;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .btn-back {
-            position: absolute;
-            top: 20px;
-            left: 20px;
             text-decoration: none;
-            color: #666;
-            font-weight: bold;
+            color: var(--text-secondary);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+        .btn-back:hover { color: var(--primary); }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .profile-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-std);
+            padding: 24px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .profile-img {
             width: 120px;
             height: 120px;
+            position:relative;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid var(--accent);
+            border: 2.5px solid #638ee3;
+            margin-bottom: 15px;
         }
 
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-top: 15px;
+        h1 { margin: 0; font-size: 1.5rem; color: var(--text-main); }
+        .dept-text { color: var(--text-secondary); margin: 5px 0 20px 0; font-size: 0.95rem; }
+
+        .stats-trigger {
+            width: 100%;
+            max-width: 500px;
+            cursor: pointer;
+            border-radius: 12px;
+            padding: 10px;
+            transition: background-color 0.2s ease;
+            position: relative;
         }
 
-        .stat-box strong {
-            display: block;
-            font-size: 1.5rem;
+        .stats-trigger:hover {
+            background-color: #f9fafb;
+            outline: 1px solid #e5e7eb;
+        }
+
+        .trigger-hint {
+            font-size: 0.8rem;
             color: var(--primary);
-        }
-
-        .review-form-container {
-            background: white;
-            padding: 25px;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            margin-top: 20px;
-            border: 1px solid #f1f5f9;
-            margin-bottom: 20px;
-        }
-
-        .form-title {
+            margin-top: 10px;
             display: flex;
             align-items: center;
+            justify-content: center;
+            gap: 5px;
+            font-weight: 600;
+            opacity: 0.8;
+        }
+
+        .chevron {
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 10px;
-            margin-top: 0;
-            margin-bottom: 20px;
-            color: var(--primary);
-            font-size: 1.25rem;
+            width: 100%;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+            pointer-events: none;
         }
 
-        .selectors-row {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+        .stat-item { text-align: center; }
+        .stat-val { display: block; font-size: 1.2rem; font-weight: 700; color: var(--primary); }
+        .stat-label { font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .breakdown-wrapper {
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+            opacity: 0;
         }
 
-        .input-group {
-            flex: 1;
-            min-width: 200px;
+        .breakdown-wrapper.open {
+            opacity: 1;
+            margin-top: 10px;
+        }
+
+        .breakdown-content {
+            padding: 15px 0;
+            border-top: 1px dashed var(--border-color);
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
+        
+        .bar-row { display: flex; align-items: center; gap: 12px; font-size: 0.85rem; color: var(--text-secondary); }
+        .bar-label { width: 30px; text-align: right; font-weight: 600; }
+        .bar-track { flex: 1; height: 8px; background-color: #f3f4f6; border-radius: 4px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease-out; width: 0; }
+        .fill-green { background-color: #10b981; } 
+        .fill-yellow { background-color: #f59e0b; } 
+        .fill-red { background-color: #ef4444; }    
+        .bar-count { width: 30px; text-align: left; font-size: 0.75rem; color: #9ca3af; }
 
-        .input-label {
-            font-weight: 600;
-            color: #4b5563;
-            font-size: 0.9rem;
+        .form-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-std); padding: 20px; }
+        .form-header { font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .input-row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .input-group { flex: 1; }
+        label { display: block; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; }
+        select, textarea { width: 100%; border: 1px solid var(--border-color); border-radius: var(--radius-std); background-color: #fff; font-family: 'Inter', sans-serif; font-size: 1rem; color: var(--text-main); outline: none; transition: border 0.2s; }
+        select { height: var(--input-height); padding: 0 12px; }
+        textarea { padding: 12px; height: 100px; resize: none; }
+        select:focus, textarea:focus { border-color: var(--primary); }
+        .btn-submit { width: 100%; height: var(--input-height); background-color: var(--primary); color: white; border: none; border-radius: var(--radius-std); font-weight: 600; font-size: 1rem; cursor: pointer; margin-top: 10px; opacity: 0.6; cursor: not-allowed; transition: opacity 0.2s; }
+        .btn-submit:not(:disabled) { opacity: 1; cursor: pointer; }
+        .btn-submit:not(:disabled):active { background-color: var(--primary-dark); }
+        .reviews-section-title { font-size: 1rem; font-weight: 600; margin: 10px 0 10px 0; color: var(--text-secondary); }
+        .review-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-std); padding: 16px; margin-bottom: 12px; }
+        .review-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; }
+        .tags { display: flex; gap: 8px; }
+        .tag { background: #f3f4f6; padding: 2px 8px; border-radius: 4px; color: var(--text-secondary); font-weight: 500; border: 1px solid #e5e7eb; }
+        .tag.good { background: #ecfdf5; color: #4f9604; border-color: #72cd5c; }
+        .tag.bad { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+        .review-date { color: #a8b2c3; font-size: 0.9rem; }
+        .review-text { font-size: 0.95rem; line-height: 1.5; color: var(--text-main); margin: 0; }
+        .badge-collab { background: linear-gradient(135deg, #4f46e5, #ea3370); color: rgb(255, 255, 255); font-size: 0.7rem; padding: 1.7px 7px; border-radius: 12px; font-weight: 600; display: inline-block; margin-bottom: 4px; width: fit-content; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        
+        .bmc-btn { position: fixed; bottom: 20px; right: 20px; background: #FFDD00; color: black; padding: 10px 16px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 8px; border: 1px solid rgba(0,0,0,0.1); z-index: 99; }
+
+        @media (max-width: 500px) {
+            .input-row { flex-direction: column; gap: 10px; }
+            .bmc-text { display: none; }
+            .bmc-btn { padding: 12px; border-radius: 50%; }
         }
-
-        .modern-select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            background-color: #f8fafc;
-            font-size: 1rem;
-            color: #334155;
-            outline: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.5rem center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
-            padding-right: 2.5rem;
-        }
-
-        .modern-select:focus {
-            border-color: var(--primary);
-            background-color: white;
-            box-shadow: 0 0 0 3px rgba(0, 70, 137, 0.1);
-        }
-
-        .modern-textarea {
-            width: 100%;
-            height: 120px;
-            padding: 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            background-color: #f8fafc;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            color: #334155;
-            outline: none;
-            transition: all 0.2s;
-            box-sizing: border-box;
-            resize: none;
-        }
-
-        .modern-textarea:focus {
-            border-color: var(--primary);
-            background-color: white;
-            box-shadow: 0 0 0 3px rgba(0, 70, 137, 0.1);
-        }
-
-        .modern-textarea::placeholder {
-            color: #94a3b8;
-        }
-
-        .btn-submit {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: transform 0.2s, box-shadow 0.2s;
-            width: 100%;
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .btn-submit:hover {
-            background-color: #003366;
-            transform: translateY(-2px);
-        }
-
-        @media (min-width: 600px) {
-            .btn-submit {
-                width: auto;
-            }
-        }
-
-        .review-card {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            border-left: 4px solid var(--accent);
-        }
-
-        .review-meta {
-            font-size: 0.8rem;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-        .badge {
-            background: #eee;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 0.8rem;
-        }
-
-        .badge-collab {
-            background-color: #dbeafe;
-            color: #1e40af;
-            font-size: 0.5em;
-            padding: 5px 10px;
-            border-radius: 20px;
-            vertical-align: middle;
-            margin-left: 10px;
-            border: 1px solid #93c5fd;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .bmc-floating-btn {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: #FFDD00; 
-        color: #000;
-        padding: 12px 20px;
-        border-radius: 50px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        z-index: 1000; 
-        font-weight: 600;
-        font-family: 'Inter', sans-serif;
-        transition: transform 0.2s, box-shadow 0.2s;
-        border: 2px solid #fff; 
-    }
-
-    .bmc-floating-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-        background-color: #F1C40F;
-    }
-
-    .bmc-icon {
-        font-size: 1.2rem;
-    }
-
-    @media (max-width: 400px) {
-        .bmc-text {
-            display: none;
-        }
-        .bmc-floating-btn {
-            padding: 12px;
-            border-radius: 50%;
-        }
-    }
     </style>
 </head>
 <body>
 
+    <nav class="navbar">
+        <a href="index.html" class="btn-back">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Inicio
+        </a>
+    </nav>
+
     <div class="container">
-        <div id="maestro-info" class="profile-header">
-            <a href="index.html" class="btn-back">← Volver</a>
-            <p>Cargando perfil...</p>
+        <div id="maestro-info" class="profile-card">
+            <p>Cargando información...</p>
         </div>
 
-        <div class="review-form-container">
-            <h3 class="form-title">📝 Deja tu reseña anónima</h3>
-
-            <div class="selectors-row">
+        <div class="form-card">
+            <div class="form-header">✍️ Escribir Reseña Anónima</div>
+            
+            <div class="input-row">
                 <div class="input-group">
-                    <label class="input-label">Calidad:</label>
-                    <select id="in-calidad" class="modern-select">
-                        <option value="5"> 5 - Excelente</option>
-                        <option value="4"> 4 - Buena</option>
-                        <option value="3"> 3 - Regular</option>
-                        <option value="2"> 2 - Mala</option>
-                        <option value="1"> 1 - Terrible💀</option>
+                    <label>Calidad</label>
+                    <select id="in-calidad">
+                        <option value="5">5 - Excelente</option>
+                        <option value="4">4 - Buena</option>
+                        <option value="3">3 - Regular</option>
+                        <option value="2">2 - Mala</option>
+                        <option value="1">1 - Terrible</option>
                     </select>
                 </div>
-
                 <div class="input-group">
-                    <label class="input-label">Dificultad:</label>
-                    <select id="in-dificultad" class="modern-select">
-                        <option value="1"> 1 - Barco (Muy fácil)</option>
-                        <option value="2"> 2 - Fácil</option>
-                        <option value="3"> 3 - Normal</option>
-                        <option value="4"> 4 - Difícil</option>
-                        <option value="5"> 5 - Preparate para no dormir💀</option>
+                    <label>Dificultad</label>
+                    <select id="in-dificultad">
+                        <option value="1">1 - Muy Fácil (Barco)</option>
+                        <option value="2">2 - Fácil</option>
+                        <option value="3">3 - Normal</option>
+                        <option value="4">4 - Difícil</option>
+                        <option value="5">5 - Muy Difícil</option>
                     </select>
                 </div>
             </div>
 
             <div class="input-group">
-                <textarea id="in-texto" class="modern-textarea" placeholder="¿Qué tal la clase? ¿Deja mucha tarea? (Sé respetuoso)"></textarea>
+                <label>Comentario</label>
+                <textarea id="in-texto" placeholder="¿Cómo es su clase? ¿Deja mucha tarea? ¿Explica bien?"></textarea>
             </div>
 
-            <button id="btn-enviar" onclick="enviarResena()" class="btn-submit" disabled>Cargando seguridad...</button>
+            <button id="btn-enviar" onclick="enviarResena()" class="btn-submit" disabled>Cargando...</button>
         </div>
 
-        <h3 style="color: #666;">Reseñas de estudiantes:</h3>
-        <div id="lista-resenas"></div>
+        <div>
+            <div class="reviews-section-title">Reseñas recientes</div>
+            <div id="lista-resenas"></div>
+        </div>
     </div>
+
+    <a href="https://www.buymeacoffee.com/starcatunison" target="_blank" class="bmc-btn">
+        <span style="font-size: 1.2rem;">☕</span>
+        <span class="bmc-text">Invítame un café</span>
+    </a>
 
     <script>
         const SUPABASE_URL = 'https://bpiujyhyejolnthdezxf.supabase.co';
@@ -321,7 +272,7 @@
         const params = new URLSearchParams(window.location.search);
         const maestroId = params.get('id');
         let visitorId = null;
-        const BUHO_DEFAULT = 'https://ui-avatars.com/api/?name=Buho&background=0D8ABC&color=fff&size=200';
+        const BUHO_DEFAULT = 'https://ui-avatars.com/api/?name=Buho&background=eff6ff&color=004689&size=200';
 
         function optimizarImagen(url) {
             if (!url) return BUHO_DEFAULT;
@@ -329,35 +280,6 @@
                 return url.replace('/upload/', '/upload/f_auto,q_auto,w_200,c_fill/');
             }
             return url;
-        }
-
-        function inyectarSchema(profesor) {
-            const scriptJSON = document.createElement('script');
-            scriptJSON.type = 'application/ld+json';
-            
-            const datos = {
-              "@context": "https://schema.org/",
-              "@type": "Person",
-              "name": profesor.nombre,
-              "jobTitle": "Profesor",
-              "affiliation": {
-                "@type": "Organization",
-                "name": "Universidad de Sonora"
-              },
-              "image": profesor.foto_url || BUHO_DEFAULT
-            };
-
-            if (profesor.promedio_calidad) {
-                datos.aggregateRating = {
-                    "@type": "AggregateRating",
-                    "ratingValue": profesor.promedio_calidad,
-                    "bestRating": "5",
-                    "ratingCount": profesor.total_resenas || "1"
-                };
-            }
-
-            scriptJSON.text = JSON.stringify(datos);
-            document.head.appendChild(scriptJSON);
         }
 
         (async () => {
@@ -368,67 +290,80 @@
 
                 const btn = document.getElementById('btn-enviar');
                 btn.disabled = false;
-                btn.style.opacity = "1";
-                btn.style.cursor = "pointer";
                 btn.innerText = "Publicar Reseña";
-            } catch (e) {
-                console.error(e);
-            }
+            } catch (e) { console.error(e); }
         })();
 
         async function cargarPerfil() {
-            if (!maestroId) {
-                window.location.href = 'index.html';
-                return;
-            }
+            if (!maestroId) { window.location.href = 'index.html'; return; }
+            
             const { data: profe, error } = await _supabase
                 .from('maestros')
                 .select('*, departamentos(nombre)')
                 .eq('id', maestroId)
                 .maybeSingle();
 
-            if (error) {
-                console.error("Error Supabase:", error);
-                alert("Error cargando perfil. Revisa la consola.");
+            if (error || !profe) {
+                document.getElementById('maestro-info').innerHTML = '<p>Profesor no encontrado.</p>';
                 return;
             }
 
-            if (profe) {
-                document.title = `${profe.nombre} - Reseñas y Calificaciones | Búho Rater`;
-                const metaDescription = document.querySelector('meta[name="description"]');
-                if (metaDescription) {
-                    metaDescription.setAttribute("content", 
-                        `Lee lo que dicen los alumnos de la Unison sobre ${profe.nombre}. Departamento: ${profe.departamentos?.nombre || 'General'}. Calificación promedio: ${profe.promedio_calidad?.toFixed(1) || 'N/A'}.`
-                    );
-                }
-                inyectarSchema(profe);
+            document.title = `${profe.nombre} - Búho Rater`;
+            const badge = profe.es_colaborador ? `<span class="badge-collab">Colaborador</span>` : '';
+            const foto = optimizarImagen(profe.foto_url);
 
-                const badgeHtml = profe.es_colaborador
-                    ? `<span class="badge-collab" title="Este profesor ayuda a mejorar la plataforma">🛠️ Colaborador</span>`
-                    : '';
-
-                const foto = optimizarImagen(profe.foto_url);
-
-                document.getElementById('maestro-info').innerHTML = `
-                    <a href="index.html" class="btn-back">← Volver</a>
-                    <img src="${foto}" class="profile-img" onerror="this.src='${BUHO_DEFAULT}'">
-                    <h1>${profe.nombre} ${badgeHtml}</h1>
-                    <p style="color:#666">${profe.departamentos?.nombre || 'Unison'}</p>
-                    
-                    <div class="stats">
-                        <div class="stat-box"><strong>⭐ ${profe.promedio_calidad?.toFixed(1) || '-'}</strong>Calidad</div>
-                        <div class="stat-box"><strong>🔥 ${profe.promedio_dificultad?.toFixed(1) || '-'}</strong>Dificultad</div>
-                        <div class="stat-box"><strong>💬 ${profe.total_resenas || 0}</strong>Reseñas</div>
+            document.getElementById('maestro-info').innerHTML = `
+                <img src="${foto}" class="profile-img" onerror="this.src='${BUHO_DEFAULT}'">
+                <h1>${profe.nombre} ${badge}</h1>
+                <div class="dept-text">${profe.departamentos?.nombre || 'General'}</div>
+                
+                <div class="stats-trigger" onclick="toggleDesglose()">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-val">${profe.promedio_calidad?.toFixed(1) || '-'}</span>
+                            <span class="stat-label">Calidad</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-val">${profe.promedio_dificultad?.toFixed(1) || '-'}</span>
+                            <span class="stat-label">Dificultad</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-val">${profe.total_resenas || 0}</span>
+                            <span class="stat-label">Reseñas</span>
+                        </div>
                     </div>
-                `;
-            } else {
-                document.getElementById('maestro-info').innerHTML = `
-                    <a href="index.html" class="btn-back">← Volver</a>
-                    <p>No se encontró al profesor (ID inválido o eliminado).</p>
-                `;
-            }
+                    
+                    <div class="trigger-hint">
+                        <span id="hint-text">Ver desglose</span>
+                        <span id="hint-icon" class="chevron">▼</span>
+                    </div>
+                </div>
+
+                <div id="breakdown-wrapper" class="breakdown-wrapper">
+                    <div id="breakdown-content" class="breakdown-content">
+                        </div>
+                </div>
+            `;
 
             cargarResenas();
+        }
+
+        function toggleDesglose() {
+            const wrapper = document.getElementById('breakdown-wrapper');
+            const icon = document.getElementById('hint-icon');
+            const text = document.getElementById('hint-text');
+
+            if (wrapper.style.maxHeight && wrapper.style.maxHeight !== '0px') {
+                wrapper.style.maxHeight = '0px';
+                wrapper.classList.remove('open');
+                icon.style.transform = 'rotate(0deg)';
+                text.innerText = 'Ver desglose';
+            } else {
+                wrapper.classList.add('open');
+                wrapper.style.maxHeight = wrapper.scrollHeight + "px";
+                icon.style.transform = 'rotate(180deg)';
+                text.innerText = 'Ocultar desglose';
+            }
         }
 
         async function cargarResenas() {
@@ -442,20 +377,60 @@
             divLista.innerHTML = '';
 
             if (resenas && resenas.length > 0) {
+                generarBarras(resenas);
+
                 resenas.forEach(r => {
+                    const tagCalidad = r.calidad >= 4 ? 'good' : (r.calidad <= 2 ? 'bad' : '');
+                    const tagDif = r.dificultad >= 4 ? 'bad' : (r.dificultad <= 2 ? 'good' : '');
+
                     divLista.innerHTML += `
                         <div class="review-card">
-                            <div class="review-meta">
-                                <span class="badge">⭐ Calidad: ${r.calidad}</span>
-                                <span class="badge">🔥 Dificultad: ${r.dificultad}</span>
-                                <span style="float:right">${new Date(r.fecha).toLocaleDateString()}</span>
+                            <div class="review-header">
+                                <div class="tags">
+                                    <span class="tag ${tagCalidad}">⭐ ${r.calidad} Calidad</span>
+                                    <span class="tag ${tagDif}">🔥 ${r.dificultad} Dif.</span>
+                                </div>
+                                <span class="review-date">${new Date(r.fecha).toLocaleDateString()}</span>
                             </div>
-                            <p>${r.texto || 'Sin comentario.'}</p>
+                            <p class="review-text">${r.texto || 'Sin comentario.'}</p>
                         </div>
                     `;
                 });
             } else {
-                divLista.innerHTML = '<p style="text-align:center; color:#999">Sé el primero en calificar a este profe.</p>';
+                divLista.innerHTML = '<p style="text-align:center; color:var(--text-secondary); padding:20px;">No hay reseñas aún. ¡Sé el primero!</p>';
+                const hint = document.querySelector('.trigger-hint');
+                if(hint) hint.style.display = 'none';
+            }
+        }
+
+        function generarBarras(resenas) {
+            const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+            const total = resenas.length;
+
+            resenas.forEach(r => {
+                if (counts[r.calidad] !== undefined) counts[r.calidad]++;
+            });
+
+            const container = document.getElementById('breakdown-content');
+            container.innerHTML = ''; 
+
+            for (let i = 5; i >= 1; i--) {
+                const count = counts[i];
+                const percentage = total > 0 ? (count / total) * 100 : 0;
+                
+                let colorClass = 'fill-red';
+                if (i >= 4) colorClass = 'fill-green';
+                else if (i === 3) colorClass = 'fill-yellow';
+
+                container.innerHTML += `
+                    <div class="bar-row">
+                        <span class="bar-label">${i} ★</span>
+                        <div class="bar-track">
+                            <div class="bar-fill ${colorClass}" style="width: ${percentage}%"></div>
+                        </div>
+                        <span class="bar-count">(${count})</span>
+                    </div>
+                `;
             }
         }
 
@@ -469,7 +444,7 @@
                 .eq('device_id', visitorId);
 
             if (check && check.length > 0) {
-                alert("Solo se permite una reseña por profesor.");
+                alert("Ya has calificado a este profesor anteriormente.");
                 return;
             }
 
@@ -477,7 +452,11 @@
             const dificultad = document.getElementById('in-dificultad').value;
             const texto = document.getElementById('in-texto').value;
 
-            if (!texto.trim()) { alert("Escribe un comentario por favor."); return; }
+            if (!texto.trim()) { alert("Por favor escribe un comentario."); return; }
+
+            const btn = document.getElementById('btn-enviar');
+            btn.disabled = true;
+            btn.innerText = "Enviando...";
 
             const { error } = await _supabase.from('resenas').insert({
                 maestro_id: maestroId,
@@ -489,19 +468,18 @@
 
             if (error) {
                 console.error(error);
-                alert("Error al enviar reseña. Verifica permisos en Supabase.");
+                alert("Error al enviar. Intenta de nuevo.");
+                btn.disabled = false;
+                btn.innerText = "Publicar Reseña";
             } else {
-                alert("¡Reseña enviada! Gracias.");
+                alert("¡Gracias por tu reseña!");
                 document.getElementById('in-texto').value = '';
+                btn.innerText = "Enviada";
                 cargarPerfil();
             }
         }
 
         cargarPerfil();
     </script>
-    <a href="https://www.buymeacoffee.com/starcatunison" target="_blank" class="bmc-floating-btn">
-    <span class="bmc-icon">☕</span>
-    <span class="bmc-text">Invítame un café</span>
-</a>
 </body>
 </html>

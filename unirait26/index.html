@@ -7,10 +7,9 @@
     </script>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Búho Rater - Busca y reseña a tus profesores de la UNISON</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Búho Rater - Herramienta de Búsqueda UNISON</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦉</text></svg>">
@@ -18,527 +17,403 @@
     <style>
         :root {
             --primary: #004689;
-            --accent: #710ff1;
-            --bg: #f3f4f6;
-            --text: #1f2937;
+            --primary-dark: #003366;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #789be0;
+            --focus-ring: rgba(0, 70, 137, 0.2);
+            --radius-std: 8px;
+            --input-height: 48px;
         }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            background-color: var(--bg-body);
+            color: var(--text-main);
             margin: 0;
-            padding: 20px;
+            padding: 0;
             display: flex;
             flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-navbar {
+            width: 100%;
+            height: 80px;
+            background-color: white; 
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            box-sizing: border-box;
+        }
+        .hamburger-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--text-main);
+            padding: 5px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            flex-shrink: 0;
+            z-index: 1002; 
+        }
+
+        .logo-img {
+            height: 90px; 
+            width: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        .nav-items {
+            display: flex;
+            gap: 25px;
             align-items: center;
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            margin-top: 20px;
-            width: 100%;
-            max-width: 800px;
+        .nav-link {
+            text-decoration: none;
+            color: #4b5563;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover { color: var(--primary); }
+        @media (max-width: 900px) {
+            .main-navbar {
+                padding: 0 20px;
+                height: 70px;
+                justify-content: flex-start; 
+            }
+            .hamburger-btn {
+                display: block;
+                z-index: 1003;
+            }
+            .nav-brand {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .logo-img {
+                height:90px;
+            }
+            .nav-items {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background-color: white;
+                flex-direction: column;
+                align-items: center;
+                padding: 20px 0;
+                border-bottom: 2px solid var(--primary);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                gap: 20px;
+                animation: slideDown 0.3s ease-out;
+            }
+            .nav-items.active {
+                display: flex;
+            }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .content-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%;
+            padding: 20px;
+            flex: 1;
         }
 
         h1 {
             color: var(--primary);
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 1.75rem;
+            margin: 0 0 4px 0;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h1 + p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin: 0;
         }
 
         .drop-zone {
             width: 100%;
             max-width: 600px;
-            border: 2px dashed #cbd5e1;
-            border-radius: 20px;
-            padding: 25px;
-            background-color: white;
+            background-color: #eff6ff;
+            border: 2px dashed #bfdbfe;
+            border-radius: var(--radius-std);
+            padding: 20px;
+            margin: 20px 0;
             cursor: pointer;
-            margin-bottom: 25px;
-            position: relative;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-            box-sizing: border-box;
+            transition: all 0.2s;
+            text-align: center;
         }
 
-        .drop-zone:hover {
-            border-color: var(--primary);
-            background-color: #e0f2fe;
-            transform: translateY(-2px);
-        }
+        .drop-zone:hover, .drop-zone:active { background-color: #dbeafe; }
+        .drop-icon { font-size: 1.5rem; margin-bottom: 8px; display: block; }
+        .drop-text { font-weight: 600; color: var(--primary); display: block; }
+        .drop-subtext { font-size: 0.85rem; color: var(--text-secondary); }
+        #fileInput { display: none; }
 
-        .drop-zone.dragover {
-            background-color: #dbeafe;
-            border-color: var(--primary);
-            transform: scale(1.02);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        .search-container { width: 100%; max-width: 1100px; margin-bottom: 12px; padding: 0 16px; }
+        input[type="text"] {
+            width: 100%; height: var(--input-height); padding: 0 16px; font-size: 16px;
+            border: 1px solid var(--border-color); border-radius: var(--radius-std);
+            background-color: var(--bg-card); outline: none; transition: border 0.2s, box-shadow 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
+        input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--focus-ring); }
 
-        .drop-zone-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .drop-icon {
-            font-size: 2rem;
-        }
-
-        .drop-text {
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .drop-subtext {
-            font-size: 0.8rem;
-            color: #64748b;
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        .search-container {
-            position: relative;
-            max-width: 600px;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        input {
-            width: 100%;
-            padding: 15px 20px;
-            font-size: 1.1rem;
-            border: 2px solid #ddd;
-            border-radius: 50px;
-            outline: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            box-sizing: border-box;
-        }
-
-        input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0, 70, 137, 0.3);
-        }
-
-        .filtros-container {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            width: 100%;
-        }
-
+        .filtros-container { display: flex; gap: 10px; width: 100%; max-width: 1100px; padding: 0 16px; flex-wrap: wrap; }
         .filtros-container select {
-            padding: 10px 15px;
-            border-radius: 20px;
-            border: 1px solid #ddd;
-            background-color: white;
-            font-size: 0.95rem;
-            cursor: pointer;
-            outline: none;
+            flex: 1; min-width: 140px; height: var(--input-height); padding: 0 12px; font-size: 14px;
+            border: 1px solid var(--border-color); border-radius: var(--radius-std);
+            background-color: var(--bg-card); color: var(--text-main); cursor: pointer; outline: none;
         }
+        .filtros-container select:focus { border-color: var(--primary); }
 
         #resultados {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            width: 100%;
-            max-width: 1200px;
-            margin-top: 10px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px; width: 100%; max-width: 1100px; padding: 20px 16px;
         }
 
         .card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s;
-            border: 1px solid #eee;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius-std); padding: 16px; display: flex; align-items: center;
+            gap: 16px; transition: transform 0.2s, box-shadow 0.2s; position: relative;
+        }
+        .card:active { background-color: #f9fafb; }
+        @media(hover: hover) {
+            .drop-zone:hover { transform: translateY(-1px); }
+            #btnCargarMas:hover { background-color: #dbeafe; border-color: var(--primary); transform: translateY(-1px); }
+            .card:hover { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); background-color: #ffffff5b; border-color: #1c61c9; transform: translateY(-1px); }
         }
 
-        .card img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid var(--accent);
-            margin-bottom: 15px;
+        .card img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-color); flex-shrink: 0; }
+        .card-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+        .card h3 { margin: 0; font-size: 1rem; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card p.depto { font-size: 0.8rem; color: var(--text-secondary); margin: 2px 0 6px 0; font-weight: 400; }
+        .card .meta-row { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; }
+        .card .full-link { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+
+        .badge-collab {
+            background: linear-gradient(135deg, #4f46e5, #ea3370); color: white; border: none;
+            font-size: 0.7rem; padding: 3px 8px; border-radius: 12px; font-weight: 600;
+            display: inline-block; margin-bottom: 4px; width: fit-content; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .card h3 {
-            margin: 0;
-            font-size: 1.1rem;
-            color: #111;
-        }
-
-        .card p.depto {
-            font-size: 0.85rem;
-            color: #666;
-            margin: 5px 0 15px 0;
-            font-weight: 500;
-        }
-
-        .card .calificacion {
-            font-weight: 800;
-            color: #d1bc02;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-        }
-
-        .card .btn-perfil {
-            margin-top: auto;
-            background-color: var(--primary);
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-        }
+        .rating-pill { padding: 2px 8px; border-radius: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; font-size: 0.85rem; border: 1px solid transparent; }
+        .rating-high { background-color: #ecfdf5; color: #74e000; border-color: #82e76e; }
+        .rating-mid { background-color: #fffbeb; color: #b45309; border-color: #fcd34d; }
+        .rating-low { background-color: #fef2f2; color: #b91c1c; border-color: #fca5a5; }
+        .rating-none { background-color: #f3f4f6; color: #6b7280; border-color: #e5e7eb; }
 
         #btnCargarMas {
-            margin: 30px 0;
-            padding: 12px 25px;
-            background-color: white;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-            display: none;
+            margin: 20px 0 40px 0; height: var(--input-height); padding: 0 32px; background-color: white;
+            border: 1px solid var(--border-color); color: var(--text-main); border-radius: var(--radius-std);
+            font-weight: 500; cursor: pointer; display: none; font-size: 14px;
         }
-
-        #btnCargarMas:hover {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        .loading {
-            text-align: center;
-            grid-column: 1 / -1;
-            color: #666;
-            margin-top: 20px;
-        }
+        #btnCargarMas:active { background-color: #f3f4f6; }
+        .loading { grid-column: 1 / -1; text-align: center; color: var(--text-secondary); padding: 20px; }
 
         .contador-container {
-            background-color: white;
-            color: var(--primary);
-            padding: 10px 25px;
-            border-radius: 50px;
-            font-weight: 800;
-            font-size: 1.1rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            border: 2px solid #e5e7eb;
+            font-size: 15px; color: var(--text-main); margin-top: 20px; margin-bottom: 2px;
+            display: flex; align-items: center; gap: 8px; background: white; font-size: 20px;
+            padding: 8px 16px; border-radius: 10px; border: 2px solid var(--border-color);
         }
 
-        .punto-rojo {
-            width: 10px;
-            height: 10px;
-            background-color: #ef4444;
-            border-radius: 50%;
-            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-            animation: palpitar 2s infinite;
-        }
-
-        @keyframes palpitar {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-
-        .badge-collab-card {
-            background-color: #dbeafe;
-            color: #1e40af;
-            font-size: 0.75rem;
-            padding: 2px 8px;
-            border-radius: 12px;
-            border: 1px solid #93c5fd;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            margin-top: 5px;
+        .punto-rojo { width: 8px; height: 8px; background-color: #60f001; border-radius: 50%; display: inline-block; animation: pulso 2s infinite; }
+        @keyframes pulso {
+            0% { box-shadow: 0 0 0 0px #3fff04b3; background-color: transparent; }
+            70% { box-shadow: 0 0 0 10px #07201200; }
+            100% { box-shadow: 0 0 0 0px #2ecc7100; background-color: #1cfc03; }
         }
 
         .main-footer {
-            width: 100%;
-            margin-top: 60px;
-            padding: 40px 20px;
-            background-color: white;
-            border-top: 1px solid #e5e7eb;
-            text-align: center;
-            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.02);
+            width: 100%; background-color: #f3f4f6; border-top: 1px solid var(--border-color);
+            padding: 30px 20px; text-align: center; margin-top: auto;
         }
-
-        .footer-content {
-            max-width: 800px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .footer-links {
-            display: flex;
-            gap: 25px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .footer-link {
-            text-decoration: none;
-            color: #4b5563;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            background-color: #f9fafb;
-        }
-
-        .footer-link:hover {
-            color: var(--primary);
-            background-color: #dbeafe;
-            transform: translateY(-2px);
-        }
-
-        .copyright {
-            font-size: 0.85rem;
-            color: #9ca3af;
-            margin-top: 10px;
-        }
-
-        .heart {
-            color: #ef4444;
-            display: inline-block;
-            animation: palpitar 2s infinite;
-        }
+        .footer-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 15px; }
+        .footer-link { text-decoration: none; color: var(--text-secondary); font-size: 0.9rem; }
+        .copyright { color: #9ca3af; font-size: 0.8rem; }
 
         .coffee-popup {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); 
-            display: none; 
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            animation: fadeIn 0.3s ease-out;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); padding: 20px; display: none;
+            justify-content: center; align-items: center; z-index: 2000;
         }
-
         .coffee-content {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-            position: relative;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            border: 4px solid #F1C40F; 
+            background: white; border-radius: 12px; border: none;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); width: 100%; max-width: 350px;
+            text-align: center; padding: 25px; position: relative;
         }
 
-        .coffee-icon {
-            font-size: 3rem;
-            margin-bottom: 10px;
+        @media (max-width: 600px) {
+            .filtros-container select { min-width: 100%; }
+            .card { padding: 12px; gap: 12px; }
+            .card img { width: 50px; height: 50px; }
         }
-
-        .coffee-content h3 {
-            color: #004689; 
-            margin-top: 0;
-        }
-
-        .coffee-content p {
-            color: #555;
-            font-size: 1rem;
-            line-height: 1.5;
-        }
-
-        .small-text {
-            font-size: 0.85rem !important;
-            color: #888 !important;
-            margin-bottom: 20px !important;
-        }
-
-        .btn-coffee {
-            background: #FFDD00; 
-            color: #000;
-            text-decoration: none;
-            padding: 12px 25px;
-            border-radius: 50px;
-            font-weight: bold;
-            display: inline-block;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-            font-size: 1.1rem;
-        }
-
-        .btn-coffee:hover {
-            transform: scale(1.05);
-            background: #F1C40F;
-        }
-
-        .btn-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-            color: #999;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        
+        header { width: 100%; max-width: 800px; display: flex; flex-direction: column; align-items: center; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>🦉 Búho Rater</h1>
-        <p>Encuentra y califica a tus profesores de la UNISON</p>
+    <nav class="main-navbar">
+        <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
 
-        <div class="drop-zone" id="dropZone">
-            <div class="drop-zone-content">
-                <div class="drop-icon">📄</div>
-                <span class="drop-text">Suelta tu horario aquí</span>
-                <span class="drop-subtext">o haz clic para buscar el PDF</span>
+        <a href="index.html" class="nav-brand">
+            <img src="https://res.cloudinary.com/dyqoqobg2/image/upload/v1767981066/Geometric_owl_logo_with_modern_tech_twist_wcvitd.png" alt="Logo Búho Rater" class="logo-img">
+        </a>
+
+        <div class="nav-items" id="navMenu">
+            <a href="dictionary.html" class="nav-link">Directorio</a>
+            <a href="Politicas.html" class="nav-link">Políticas</a>
+            <a href="mailto:juanfernandoincognito@gmail.com" class="nav-link">Contacto</a>
+            <a href="https://forms.gle/zycskRMqps41jPSM9" class="nav-link">Reportar</a>
+            <a href="#" onclick="document.getElementById('coffee-popup').style.display='flex'; toggleMenu(); return false;" class="nav-link">Donar</a>
+            <div style="display:flex; align-items:center; gap:5px;">
+                <div class="punto-rojo"></div>
+                <span id="contador-texto" style="font-size:0.9rem; font-weight:600;">...</span>
             </div>
-            <input type="file" id="fileInput" accept=".pdf">
         </div>
+    </nav>
 
-        <div style="margin-top: -15px; margin-bottom: 25px; width: 100%; max-width: 600px;">
-            <div style="margin-bottom: 10px;">
-                <a href="#" id="btnToggleVideo" style="color: #64748b; text-decoration: none; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 5px;">
-                    <span>📺</span> ¿No sabes cómo descargar tu horario? Ver tutorial
+    <div class="content-wrapper">
+        <header>
+            <div class="drop-zone" id="dropZone">
+                <span class="drop-icon">📄</span>
+                <span class="drop-text">Analizar Horario (PDF)</span>
+                <span class="drop-subtext">Toca para subir tu horario</span>
+                <input type="file" id="fileInput" accept=".pdf">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <a href="#" id="btnToggleVideo" style="color: var(--primary); text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <span>ℹ️</span> ¿Cómo descargar mi horario?
                 </a>
+                <div id="videoContainer" style="display: none; margin-top:10px; background: #000; border-radius: 8px; overflow: hidden; position: relative; padding-bottom: 56.25%; height: 0; width: 100%;">
+                    <iframe id="youtubeFrame" src="" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allowfullscreen></iframe>
+                </div>
             </div>
-
-            <div id="videoContainer" style="display: none; background: #000; border-radius: 12px; overflow: hidden; position: relative; padding-bottom: 56.25%; height: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                <iframe id="youtubeFrame" src="" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-                </iframe>
-            </div>
-        </div>
-
-        <div class="contador-container">
-            <div class="punto-rojo"></div>
-            <span id="contador-texto">Cargando...</span> &nbsp; veces que un Búho no dejó morir a otro Búho 🦉❤️
-        </div>
+        </header>
 
         <div class="search-container">
-            <input type="text" id="buscador" placeholder="Escribe el nombre del profesor...">
+            <input type="text" id="buscador" placeholder="Buscar profesor...">
         </div>
 
         <div class="filtros-container">
             <select id="filtroDepto" onchange="resetearYPaginacion()">
                 <option value="todos">🏛️ Todos los Departamentos</option>
-
                 <optgroup label="📐 Exactas y Naturales">
-                    <option value="Matemáticas">🔢 Matemáticas</option>
-                    <option value="Física">⚛️ Física</option>
-                    <option value="Geología">🌋 Geología</option>
-                    <option value="Investigaciones Físicas">🔬 Investigaciones Físicas</option>
+                    <option value="Matemáticas">Matemáticas</option>
+                    <option value="Física">Física</option>
+                    <option value="Geología">Geología</option>
+                    <option value="Investigaciones Físicas">Investigaciones Físicas</option>
+                    <option value="Arquitectura y Diseño">Arquitectura y Diseño</option>
                 </optgroup>
-
                 <optgroup label="🩺 Salud y Biológicas">
-                    <option value="Agricultura">🌱 Agricultura y Ganadería</option>
-                    <option value="Ciencias Químico Biológicas">🧪 Químico Biológicas</option>
-                    <option value="Enfermería">💉 Enfermería</option>
-                    <option value="Medicina">🏥 Medicina y Salud</option>
-                    <option value="Investigaciones Científicas">🐚 Dictus (Investigación)</option>
+                    <option value="Agricultura">Agricultura y Ganadería</option>
+                    <option value="Ciencias Químico Biológicas">Químico Biológicas</option>
+                    <option value="Enfermería">Enfermería</option>
+                    <option value="Medicina">Medicina y Salud</option>
+                    <option value="Investigaciones Científicas">Dictus (Investigación)</option>
                 </optgroup>
-
                 <optgroup label="⚙️ Ingeniería">
-                    <option value="Ingeniería Civil">🏗️ Ingeniería Civil</option>
-                    <option value="Ingeniería Industrial">🏭 Ingeniería Industrial</option>
-                    <option value="Ingeniería Química">⚗️ Ingeniería Química</option>
-                    <option value="Investigación en Polímeros">🧪 Polímeros</option>
+                    <option value="Ingeniería Civil">Ingeniería Civil</option>
+                    <option value="Ingeniería Industrial">Ingeniería Industrial</option>
+                    <option value="Ingeniería Química">Ingeniería Química</option>
+                    <option value="Investigación en Polímeros">Polímeros</option>
                 </optgroup>
-
                 <optgroup label="💰 Económicas y Administrativas">
-                    <option value="Contabilidad">📊 Contabilidad</option>
-                    <option value="Economía">💹 Economía</option>
-                    <option value="Administración">💼 Administración</option>
+                    <option value="Contabilidad">Contabilidad</option>
+                    <option value="Economía">Economía</option>
+                    <option value="Administración">Administración</option>
                 </optgroup>
-
                 <optgroup label="⚖️ Ciencias Sociales">
-                    <option value="Derecho">⚖️ Derecho</option>
-                    <option value="Psicología">🧠 Psicología y Comunicación</option>
-                    <option value="Sociología">🤝 Sociología y Admón Pública</option>
-                    <option value="Trabajo Social">👨‍👩‍👧 Trabajo Social</option>
-                    <option value="Bellas Artes">🎨 Bellas Artes</option>
-                    <option value="Letras y Lingüística">📚 Letras y Lingüística</option>
-                    <option value="Lenguas Extranjeras">🗣️ Lenguas Extranjeras</option>
+                    <option value="Derecho">Derecho</option>
+                    <option value="Psicología">Psicología y Comunicación</option>
+                    <option value="Sociología">Sociología y Admón Pública</option>
+                    <option value="Trabajo Social">Trabajo Social</option>
+                    <option value="Bellas Artes">Bellas Artes</option>
+                    <option value="Letras y Lingüística">Letras y Lingüística</option>
+                    <option value="Lenguas Extranjeras">Lenguas Extranjeras</option>
                 </optgroup>
             </select>
             <select id="filtroOrden" onchange="resetearYPaginacion()">
-                <option value="nombre">🔤 Nombre (A-Z)</option>
-                <option value="mejor">⭐ Mejor Calificados</option>
-                <option value="peor">💀 Peores Calificados</option>
+                <option value="nombre">Orden: A-Z</option>
+                <option value="mejor">Mejor Calificados</option>
+                <option value="peor">Peor Calificados</option>
             </select>
         </div>
-    </header>
 
-    <div id="resultados"></div>
+        <div id="resultados"></div>
 
-    <button id="btnCargarMas" onclick="aplicarFiltros()">⬇️ Cargar más profesores...</button>
+        <button id="btnCargarMas" onclick="aplicarFiltros()">Cargar más resultados</button>
+    </div>
 
     <footer class="main-footer">
-        <div class="footer-content">
-            <div class="footer-links">
-                <a href="Politicas.html" class="footer-link">📜 Políticas y Filosofía</a>
-                <a href="https://forms.gle/zycskRMqps41jPSM9" target="_blank" class="footer-link">🐞 Reportar Bug / Agregar Profe</a>
-                <a href="mailto:juanfernandoincognito@gmail.com" class="footer-link">✉️ Contacto</a>
-            </div>
-
-            <div class="copyright">
-                <p>Hecho con <span class="heart">❤️</span> por un estudiante de Ingeniería.</p>
-                <p style="font-size: 0.75rem; opacity: 0.8;">Búho Rater es un proyecto independiente y no está afiliado a la Universidad de Sonora.</p>
-                <p>© 2025 Búho Rater</p>
-                <p><a href="dictionary.html" style="color: #888; text-decoration: none;">Ver Directorio Completo de Profesores</a></p>
-            </div>
+        <div class="footer-links">
+            <a href="Politicas.html" class="footer-link">Políticas</a>
+            <a href="https://forms.gle/zycskRMqps41jPSM9" class="footer-link">Reportar Error</a>
+            <a href="mailto:juanfernandoincognito@gmail.com" class="footer-link">Contacto</a>
+        </div>
+        <div class="copyright">
+            © 2025 Búho Rater. No afiliado a la Universidad de Sonora.
         </div>
     </footer>
 
     <div id="coffee-popup" class="coffee-popup">
         <div class="coffee-content">
-            <button class="btn-close" onclick="cerrarCoffee()">✖</button>
-            <div class="coffee-icon">🎅☕</div>
-            <h3>¡Feliz Navidad! 🦉</h3>
-            <p>Si esta página te ayudó podrías considerar donar.</p>
-            <p class="small-text">Gracias y feliz navidad de nuevo.</p>
-            
-            <a href="https://www.buymeacoffee.com/starcatunison" target="_blank" class="btn-coffee">
-                🎁 Invitar un Café
-            </a>
-            <div style="margin-top: 10px;">
-                <span onclick="cerrarCoffee()" style="color: #888; cursor: pointer; font-size: 0.8rem; text-decoration: underline;">En otro momento</span>
+            <button onclick="cerrarCoffee()" style="position:absolute; right:15px; top:15px; border:none; background:none; font-size:1.2rem; color:#999; cursor:pointer;">✕</button>
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">☕</div>
+            <h3 style="margin:0 0 10px 0; color:var(--text-main);">Apoya el proyecto</h3>
+            <p style="margin:0 0 20px 0; font-size:0.9rem; color:var(--text-secondary);">El servidor cuesta dinero. Si te sirvió, invítanos un café.</p>
+            <a href="https://www.buymeacoffee.com/starcatunison" target="_blank" style="background:#FFDD00; color:black; text-decoration:none; padding:10px 20px; border-radius:20px; font-weight:600; font-size:0.9rem; display:inline-block;">Invitar un Café</a>
+            <div style="margin-top: 15px;">
+                <span onclick="cerrarCoffee()" style="color: #999; text-decoration: underline; font-size: 0.8rem; cursor:pointer;">Cerrar</span>
             </div>
         </div>
     </div>
 
     <script>
+        function toggleMenu() {
+            const menu = document.getElementById('navMenu');
+            menu.classList.toggle('active');
+        }
+
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
 
@@ -546,82 +421,58 @@
 
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
-            dropZone.classList.add('dragover');
+            dropZone.style.backgroundColor = '#dbeafe';
         });
 
         dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
+            dropZone.style.backgroundColor = '#eff6ff';
         });
 
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
-            dropZone.classList.remove('dragover');
+            dropZone.style.backgroundColor = '#eff6ff';
             const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFile(files[0]);
-            }
+            if (files.length > 0) handleFile(files[0]);
         });
 
         fileInput.addEventListener('change', () => {
-            if (fileInput.files.length > 0) {
-                handleFile(fileInput.files[0]);
-            }
+            if (fileInput.files.length > 0) handleFile(fileInput.files[0]);
         });
 
-       async function handleFile(file) {
+        async function handleFile(file) {
             if (file.type !== 'application/pdf') {
                 alert('Por favor, sube solo archivos PDF.');
                 return;
             }
-
             const dropText = document.querySelector('.drop-text');
-            const originalText = dropText.innerText; 
-            dropText.innerText = "⏳ Analizando horario...";
+            const originalText = dropText.innerText;
+            dropText.innerText = "Procesando...";
 
             const formData = new FormData();
             formData.append('file', file);
-
             const URL_API = 'https://buhorater-backend.onrender.com/analizar-horario';
-            console.log("Conectando a:", URL_API);
 
             try {
-                const response = await fetch(URL_API, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Error del servidor: ${response.status}`);
-                }
-
+                const response = await fetch(URL_API, { method: 'POST', body: formData });
+                if (!response.ok) throw new Error(`Error: ${response.status}`);
                 const data = await response.json();
-                console.log("Respuesta del servidor:", data);
 
                 let nombresParaUrl = [];
-
-                if (data.encontrados && Array.isArray(data.encontrados)) {
-                    const nombresDeBD = data.encontrados.map(profesor => profesor.nombre);
-                    nombresParaUrl = nombresParaUrl.concat(nombresDeBD);
-                }
-
-                if (data.no_encontrados && Array.isArray(data.no_encontrados)) {
-                    nombresParaUrl = nombresParaUrl.concat(data.no_encontrados);
-                }
+                if (data.encontrados) nombresParaUrl = nombresParaUrl.concat(data.encontrados.map(p => p.nombre));
+                if (data.no_encontrados) nombresParaUrl = nombresParaUrl.concat(data.no_encontrados);
 
                 if (nombresParaUrl.length > 0) {
-                    const listaFinal = nombresParaUrl.map(n => n.trim()).join(',');
-                    const params = encodeURIComponent(listaFinal);
+                    const params = encodeURIComponent(nombresParaUrl.map(n => n.trim()).join(','));
                     window.location.href = `Horario.html?profes=${params}`;
                 } else {
-                    alert("⚠️ El servidor se está despertando (puede tardar unos segundos). Por favor, intenta subir el PDF de nuevo en un momento.");
+                    alert("El servidor se está despertando. Intenta de nuevo en unos segundos.");
                 }
-
             } catch (error) {
-                console.error('Error detallado:', error);
-                alert("⚠️ Error: Probablemente el servidor esta dormido intente minimo 5 veces.");
+                console.error(error);
+                alert("Error de conexión. Intenta de nuevo.");
             } finally {
-                dropText.innerText = originalText; 
-                document.getElementById('fileInput').value = ''; 
+                dropText.innerText = originalText;
+                fileInput.value = '';
             }
         }
 
@@ -635,7 +486,6 @@
         const btnCargarMas = document.getElementById('btnCargarMas');
         let paginaActual = 0;
         const tamanoPagina = 48;
-        let resultadosGlobales = [];
 
         function resetearYPaginacion() {
             grid.innerHTML = '';
@@ -647,6 +497,7 @@
             const depto = document.getElementById('filtroDepto').value;
             const orden = document.getElementById('filtroOrden').value;
             const texto = input.value.trim();
+
             if (texto.length >= 3) {
                 btnCargarMas.style.display = 'none';
                 await buscar(texto);
@@ -660,6 +511,7 @@
                     } else {
                         query = query.select('*, departamentos(nombre)', { count: 'exact' });
                     }
+
                     if (orden === 'nombre') {
                         query = query.order('nombre', { ascending: true });
                     } else if (orden === 'mejor') {
@@ -668,6 +520,7 @@
                     } else if (orden === 'peor') {
                         query = query.order('promedio_calidad', { ascending: true, nullsFirst: false });
                     }
+
                     const { data, count, error } = await query.range(desde, hasta);
                     if (error) throw error;
 
@@ -678,54 +531,56 @@
                     } else {
                         btnCargarMas.style.display = 'none';
                     }
-
-                } catch (err) {
-                    console.error(err);
-                }
+                } catch (err) { console.error(err); }
             }
         }
 
         async function buscar(t) {
             grid.innerHTML = '<div class="loading">Buscando...</div>';
             const palabras = t.trim().split(/\s+/);
-            let query = _supabase
-                .from('maestros')
-                .select('*, departamentos(nombre)');
-
+            let query = _supabase.from('maestros').select('*, departamentos(nombre)');
             palabras.forEach(palabra => {
-                if (palabra.length > 0) {
-                    query = query.ilike('nombre', `%${palabra}%`);
-                }
+                if (palabra.length > 0) query = query.ilike('nombre', `%${palabra}%`);
             });
 
-            const { data } = await query
-                .order('es_colaborador', { ascending: false })
-                .limit(100);
-
+            const { data } = await query.order('es_colaborador', { ascending: false }).limit(50);
             renderizar(data || [], false);
+        }
+
+        function obtenerClaseRating(valor) {
+            if (!valor) return 'rating-none';
+            const promedio = parseFloat(valor);
+            if (promedio >= 4.0) return 'rating-high';
+            if (promedio >= 3.0) return 'rating-mid';
+            return 'rating-low';
         }
 
         function renderizar(lista, append = false) {
             if (!append) grid.innerHTML = '';
             if (!lista || lista.length === 0) {
-                if (!append) grid.innerHTML = '<div class="loading">No hay resultados 🤷‍♂️</div>';
+                if (!append) grid.innerHTML = '<div class="loading">No se encontraron resultados.</div>';
                 return;
             }
-            const BUHO = 'https://ui-avatars.com/api/?name=Buho&background=0D8ABC&color=fff&size=128';
+            const BUHO = 'https://ui-avatars.com/api/?name=Buho&background=eff6ff&color=004689&size=128';
 
             lista.forEach(p => {
-                const prom = p.promedio_calidad ? parseFloat(p.promedio_calidad).toFixed(1) : 'N/A';
-                const badgeHtml = p.es_colaborador ? `<div class="badge-collab-card">🛠️ Colaborador</div>` : '';
+                const prom = p.promedio_calidad ? parseFloat(p.promedio_calidad).toFixed(1) : '-';
+                const badge = p.es_colaborador ? `<div class="badge-collab">Colaborador</div>` : '';
+                const claseColor = obtenerClaseRating(p.promedio_calidad);
 
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.innerHTML = `
-                    <img src="${p.foto_url || BUHO}" onerror="this.src='${BUHO}'">
-                    <h3>${p.nombre}</h3>
-                    ${badgeHtml}
-                    <p class="depto">${p.departamentos?.nombre || 'General'}</p>
-                    <div class="calificacion">˗ˏˋ ⭐ ˎˊ˗  ${prom}</div>
-                    <a href="Perfil.html?id=${p.id}" class="btn-perfil">Ver Reseñas</a>
+                    <img src="${p.foto_url || BUHO}" onerror="this.src='${BUHO}'" loading="lazy">
+                    <div class="card-info">
+                        ${badge}
+                        <h3>${p.nombre}</h3>
+                        <p class="depto">${p.departamentos?.nombre || 'General'}</p>
+                        <div class="meta-row">
+                            <div class="rating-pill ${claseColor}">★ ${prom}</div>
+                        </div>
+                    </div>
+                    <a href="Perfil.html?id=${p.id}" class="full-link"></a>
                 `;
                 grid.appendChild(card);
             });
@@ -744,69 +599,34 @@
 
         window.onload = () => resetearYPaginacion();
 
-        async function iniciarContadorEnVivo() {
-            const contadorElemento = document.getElementById('contador-texto');
+        (async function() {
+            try {
+                const { count } = await _supabase.from('resenas').select('*', { count: 'exact', head: true });
+                document.getElementById('contador-texto').innerText = count.toLocaleString();
+            } catch(e) {}
+        })();
 
-            async function actualizar() {
-                try {
-                    const { count, error } = await _supabase
-                        .from('resenas')
-                        .select('*', { count: 'exact', head: true });
-
-                    if (error) throw error;
-
-                    contadorElemento.innerText = count.toLocaleString();
-
-                } catch (err) {
-                    console.error("Error en contador:", err);
-                }
-            }
-
-            actualizar();
-            setInterval(actualizar, 5000);
-        }
-
-        iniciarContadorEnVivo();
-
-        const btnToggle = document.getElementById('btnToggleVideo');
-        const container = document.getElementById('videoContainer');
-        const iframe = document.getElementById('youtubeFrame');
-        const YOUTUBE_ID = "eb3FIgHIsMY";
-
-        btnToggle.addEventListener('click', (e) => {
+        document.getElementById('btnToggleVideo').addEventListener('click', (e) => {
             e.preventDefault();
-
-            if (container.style.display === 'none') {
-                container.style.display = 'block';
-                iframe.src = `https://www.youtube.com/embed/${YOUTUBE_ID}?autoplay=1`;
-                btnToggle.innerHTML = "❌ Cerrar tutorial";
+            const c = document.getElementById('videoContainer');
+            const f = document.getElementById('youtubeFrame');
+            if (c.style.display === 'none') {
+                c.style.display = 'block';
+                f.src = "https://www.youtube.com/embed/eb3FIgHIsMY?autoplay=1";
             } else {
-                container.style.display = 'none';
-                iframe.src = "";
-                btnToggle.innerHTML = "<span>📺</span> ¿No sabes cómo descargar tu horario? Ver tutorial";
+                c.style.display = 'none';
+                f.src = "";
             }
         });
-    </script>
-
-    <script>
-        const TIEMPO_ESPERA = 3000; 
-
-        function mostrarCoffee() {
-            const yaVisto = localStorage.getItem('visto_coffee_navidad');
-            
-            if (!yaVisto) {
-                setTimeout(() => {
-                    document.getElementById('coffee-popup').style.display = 'flex';
-                }, TIEMPO_ESPERA);
-            }
-        }
 
         function cerrarCoffee() {
             document.getElementById('coffee-popup').style.display = 'none';
-            localStorage.setItem('visto_coffee_navidad', 'true');
+            localStorage.setItem('visto_coffee', 'true');
         }
 
-        mostrarCoffee();
+        setTimeout(() => {
+            if(!localStorage.getItem('visto_coffee')) document.getElementById('coffee-popup').style.display = 'flex';
+        }, 3000);
     </script>
 </body>
 </html>

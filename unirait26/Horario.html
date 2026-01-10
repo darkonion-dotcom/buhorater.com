@@ -1,68 +1,174 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <script type="module">
+      import { inject } from 'https://cdn.jsdelivr.net/npm/@vercel/analytics/dist/index.mjs';
+      inject();
+    </script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tu Horario - Búho Rater</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Horario Analizado - Búho Rater</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦉</text></svg>">
 
     <style>
-        :root { --primary: #004689; --accent: #F1C40F; --bg: #f3f4f6; --text: #1f2937; }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg); 
-            color: var(--text); 
-            margin: 0; 
-            padding: 40px 20px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
+        :root {
+            --primary: #004689;
+            --primary-dark: #003366;
+            --accent: #F1C40F;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #789be0;
+            --radius-std: 8px;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
         }
-        
-        header { 
-            text-align: center; 
-            margin-bottom: 40px; 
-            width: 100%; 
-            max-width: 800px; 
+
+        .main-navbar {
+            width: 100%;
+            height: 80px;
+            background-color: white; 
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
         }
-        
-        h1 { 
-            color: var(--primary); 
-            font-size: 2.5rem; 
-            margin: 0 0 10px 0; 
-            letter-spacing: -1px;
+
+        .hamburger-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--text-main);
+            padding: 5px;
         }
-        
-        .subtitle { 
-            color: #64748b; 
-            font-size: 1.1rem; 
-            margin-bottom: 30px; 
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            flex-shrink: 0;
+            z-index: 1002;
+        }
+
+        .logo-img {
+            height: 70px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        .nav-items {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #4b5563;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover { color: var(--primary); }
+
+        @media (max-width: 900px) {
+            .main-navbar { padding: 0 20px; height: 70px; justify-content: flex-start; }
+            .hamburger-btn { display: block; z-index: 1003; }
+            .nav-brand { position: absolute; left: 50%; transform: translateX(-50%); }
+            .logo-img { height: 60px; }
+            .nav-items {
+                display: none; position: absolute; top: 70px; left: 0; width: 100%;
+                background-color: white; flex-direction: column; alignItems: center;
+                padding: 20px 0; border-bottom: 2px solid var(--primary);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); gap: 20px;
+                animation: slideDown 0.3s ease-out;
+            }
+            .nav-items.active { display: flex; }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            padding: 40px 20px;
+            flex: 1;
+        }
+
+        .header-content {
+            text-align: center;
+            margin-bottom: 40px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 30px;
         }
 
         .share-wrapper {
             background: white;
-            padding: 10px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             display: flex;
             align-items: center;
             gap: 10px;
             width: 100%;
             max-width: 600px; 
             margin: 0 auto; 
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border-color);
         }
 
         .share-input {
             flex: 1; 
             border: none;
-            background: #f1f5f9;
+            background: #f9fafb;
             padding: 12px 15px;
-            border-radius: 10px;
-            color: #475569;
+            border-radius: 8px;
+            color: var(--text-secondary);
             font-family: monospace;
             font-size: 0.9rem;
             outline: none;
@@ -73,87 +179,84 @@
 
         .btn-share {
             background-color: var(--accent);
-            color: #0f172a;
+            color: #111;
             border: none;
-            padding: 12px 24px;
-            border-radius: 10px;
+            padding: 10px 20px;
+            border-radius: 8px;
             font-weight: 700;
             font-size: 0.95rem;
             cursor: pointer;
             transition: all 0.2s ease;
             white-space: nowrap; 
-            box-shadow: 0 4px 6px -1px rgba(241, 196, 15, 0.4);
         }
 
-        .btn-share:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 10px 15px -3px rgba(241, 196, 15, 0.5);
-        }
-        
-        .btn-share:active { transform: translateY(0); }
+        .btn-share:hover { transform: translateY(-1px); filter: brightness(1.05); }
 
         #resultados { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(280px, 320px)); 
             justify-content: center; 
-            gap: 25px; 
+            gap: 20px; 
             width: 100%; 
-            max-width: 1200px; 
-            margin-top: 20px;
+            max-width: 1100px; 
         }
 
         .card { 
             background: white; 
-            border-radius: 16px; 
+            border-radius: var(--radius-std); 
             padding: 25px; 
             text-align: center; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); 
-            border: 1px solid #f1f5f9; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            border: 1px solid var(--border-color); 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s;
         }
 
         .card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             border-color: var(--primary);
         }
 
         .card img { 
-            width: 90px; 
-            height: 90px; 
+            width: 80px; 
+            height: 80px; 
             border-radius: 50%; 
             object-fit: cover; 
-            border: 3px solid var(--accent); 
+            border: 1px solid var(--border-color);
             margin-bottom: 15px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        .card h3 { margin: 0; font-size: 1.15rem; color: #1e293b; margin-bottom: 5px; }
-        .card p.depto { font-size: 0.85rem; color: #64748b; margin: 0 0 15px 0; font-weight: 500; }
-        .card .calificacion { font-weight: 800; color: #d97706; margin-bottom: 20px; font-size: 1.2rem; background: #fffbeb; padding: 5px 15px; border-radius: 20px; }
+        .card h3 { margin: 0; font-size: 1.1rem; color: var(--text-main); margin-bottom: 5px; font-weight: 600; }
+        .card p.depto { font-size: 0.85rem; color: var(--text-secondary); margin: 0 0 15px 0; }
+        
+        .card .calificacion { 
+            font-weight: 700; color: #b45309; margin-bottom: 20px; 
+            font-size: 1.1rem; background: #fffbeb; padding: 4px 12px; 
+            border-radius: 20px; border: 1px solid #fcd34d;
+        }
         
         .card .btn-perfil { 
             margin-top: auto; 
             background-color: white; 
             color: var(--primary); 
-            border: 2px solid var(--primary);
+            border: 1px solid var(--primary);
             text-decoration: none; 
             padding: 10px 20px; 
-            border-radius: 8px; 
+            border-radius: 6px; 
             font-size: 0.9rem; 
             font-weight: 600;
             transition: all 0.2s;
             width: 100%;
-            box-sizing: border-box;
         }
 
         .card .btn-perfil:hover {
             background-color: var(--primary);
             color: white;
         }
-        
+
         .loading-container {
             grid-column: 1 / -1;
             display: flex;
@@ -161,32 +264,29 @@
             align-items: center;
             justify-content: center;
             padding: 40px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             text-align: center;
             width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
+            color: var(--text-secondary);
         }
-
         .emoji-state { font-size: 3rem; margin-bottom: 10px; }
 
-        .btn-back { 
-            margin-top: 50px; 
-            color: #64748b; 
-            text-decoration: none; 
-            font-weight: 600; 
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border-radius: 50px;
-            transition: background 0.2s;
+        .main-footer {
+            width: 100%; background-color: #f3f4f6; border-top: 1px solid #e5e7eb;
+            padding: 30px 20px; text-align: center; margin-top: auto;
         }
-        .btn-back:hover {
-            background-color: #e2e8f0;
-            color: var(--text);
+        .footer-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 15px; }
+        .footer-link { text-decoration: none; color: var(--text-secondary); font-size: 0.9rem; }
+        .copyright { color: #9ca3af; font-size: 0.8rem; }
+
+        .coffee-popup {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); padding: 20px; display: none;
+            justify-content: center; align-items: center; z-index: 2000;
+        }
+        .coffee-content {
+            background: white; border-radius: 12px; border: none;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            width: 100%; max-width: 350px; text-align: center; padding: 25px; position: relative;
         }
 
         @media (max-width: 600px) {
@@ -194,73 +294,75 @@
             .btn-share { width: 100%; }
             .share-input { width: 100%; text-align: center; }
         }
-        .bmc-floating-btn {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: #FFDD00; 
-        color: #000;
-        padding: 12px 20px;
-        border-radius: 50px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        z-index: 1000; 
-        font-weight: 600;
-        font-family: 'Inter', sans-serif;
-        transition: transform 0.2s, box-shadow 0.2s;
-        border: 2px solid #fff; 
-    }
-
-    .bmc-floating-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-        background-color: #F1C40F;
-    }
-
-    .bmc-icon {
-        font-size: 1.2rem;
-    }
-
-    @media (max-width: 400px) {
-        .bmc-text {
-            display: none;
-        }
-        .bmc-floating-btn {
-            padding: 12px;
-            border-radius: 50%;
-        }
-    }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>📅 Horario Analizado</h1>
-        <p class="subtitle">Aquí están los profesores encontrados en tu PDF.</p>
-        
-        <div class="share-wrapper">
-            <input type="text" class="share-input" id="shareInput" readonly value="Generando enlace...">
-            <button class="btn-share" onclick="copiarLink()">
-                🔗 Copiar Link
-            </button>
+    <nav class="main-navbar">
+        <button class="hamburger-btn" onclick="toggleMenu()">☰</button>
+        <a href="index.html" class="nav-brand">
+            <img src="https://res.cloudinary.com/dyqoqobg2/image/upload/v1767981066/Geometric_owl_logo_with_modern_tech_twist_wcvitd.png" alt="Logo Búho Rater" class="logo-img">
+        </a>
+        <div class="nav-items" id="navMenu">
+            <a href="index.html" class="nav-link">Inicio</a>
+            <a href="dictionary.html" class="nav-link">Directorio</a>
+            <a href="Politicas.html" class="nav-link">Políticas</a>
+            <a href="https://forms.gle/zycskRMqps41jPSM9" class="nav-link">Reportar</a>
+            <a href="#" onclick="document.getElementById('coffee-popup').style.display='flex'; toggleMenu(); return false;" class="nav-link">Donar</a>
         </div>
-    </header>
+    </nav>
 
-    <div id="resultados">
-        <div class="loading-container">
-            <div class="emoji-state">🔍</div>
-            <p>Analizando profesores...</p>
+    <div class="content-wrapper">
+        
+        <div class="header-content">
+            <h1>📅 Horario Analizado</h1>
+            <p class="subtitle">Aquí están los profesores encontrados en tu PDF.</p>
+            
+            <div class="share-wrapper">
+                <input type="text" class="share-input" id="shareInput" readonly value="Generando enlace...">
+                <button class="btn-share" onclick="copiarLink()">🔗 Copiar Link</button>
+            </div>
+        </div>
+
+        <div id="resultados">
+            <div class="loading-container">
+                <div class="emoji-state">🔍</div>
+                <p>Analizando profesores...</p>
+            </div>
+        </div>
+
+        <a href="index.html" style="margin-top:40px; text-decoration:none; color:var(--text-secondary); font-weight:600; display:flex; align-items:center; gap:8px;">
+            ← Volver al inicio
+        </a>
+    </div>
+
+    <footer class="main-footer">
+        <div class="footer-links">
+            <a href="Politicas.html" class="footer-link">Políticas</a>
+            <a href="https://forms.gle/zycskRMqps41jPSM9" class="footer-link">Reportar Error</a>
+            <a href="mailto:juanfernandoincognito@gmail.com" class="footer-link">Contacto</a>
+        </div>
+        <div class="copyright">
+            © 2025 Búho Rater. No afiliado a la Universidad de Sonora.
+        </div>
+    </footer>
+
+    <div id="coffee-popup" class="coffee-popup">
+        <div class="coffee-content">
+            <button onclick="document.getElementById('coffee-popup').style.display='none'" style="position:absolute; right:15px; top:15px; border:none; background:none; font-size:1.2rem; color:#999; cursor:pointer;">✕</button>
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">☕</div>
+            <h3 style="margin:0 0 10px 0; color:var(--text-main);">Apoya el proyecto</h3>
+            <p style="margin:0 0 20px 0; font-size:0.9rem; color:var(--text-secondary);">El servidor cuesta dinero. Si te sirvió, invítanos un café.</p>
+            <a href="https://www.buymeacoffee.com/starcatunison" target="_blank" style="background:#FFDD00; color:black; text-decoration:none; padding:10px 20px; border-radius:20px; font-weight:600; font-size:0.9rem; display:inline-block;">Invitar un Café</a>
         </div>
     </div>
 
-    <a href="index.html" class="btn-back">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        Volver al inicio
-    </a>
     <script>
+        function toggleMenu() {
+            const menu = document.getElementById('navMenu');
+            menu.classList.toggle('active');
+        }
+
         const SUPABASE_URL = 'https://bpiujyhyejolnthdezxf.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwaXVqeWh5ZWpvbG50aGRlenhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwMDI4NzUsImV4cCI6MjA4MTU3ODg3NX0.pPjXHC2saUAZ81T36PSBRgQGbDqQfw6A_Jxf1R4XMrU';
         const { createClient } = supabase;
@@ -348,7 +450,7 @@
                 return;
             }
 
-            const BUHO = 'https://ui-avatars.com/api/?name=Buho&background=0D8ABC&color=fff&size=128';
+            const BUHO = 'https://ui-avatars.com/api/?name=Buho&background=eff6ff&color=004689&size=128';
             
             lista.forEach(p => {
                 const prom = p.promedio_calidad ? parseFloat(p.promedio_calidad).toFixed(1) : 'N/A';
@@ -368,9 +470,5 @@
 
         window.onload = cargarHorario;
     </script>
-    <a href="https://www.buymeacoffee.com/starcatunison" target="_blank" class="bmc-floating-btn">
-    <span class="bmc-icon">☕</span>
-    <span class="bmc-text">Invítame un café</span>
-</a>
 </body>
 </html>

@@ -4,220 +4,208 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Políticas y Filosofía - Búho Rater</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦉</text></svg>">
+
     <style>
-        :root { --primary: #004689; --accent: #F1C40F; --bg: #f3f4f6; --text: #1f2937; }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg); 
-            color: var(--text); 
-            margin: 0; 
-            padding: 20px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            min-height: 100vh;
+        :root {
+            --primary: #004689;
+            --bg-body: #f3f4f6;
+            --text-main: #111827;
+            --text-secondary: #4b5563;
+            --border-color: #e5e7eb;
         }
 
-        .container { 
-            max-width: 800px; 
-            width: 100%; 
-            background: white; 
-            padding: 40px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
-            margin-bottom: 40px;
-        }
-
-        h1 { 
-            color: var(--primary); 
-            margin-top: 0; 
-            border-bottom: 3px solid var(--accent); 
-            padding-bottom: 15px; 
-            display: inline-block;
-            font-size: 2rem;
-        }
-
-        h2 { 
-            color: var(--primary); 
-            margin-top: 30px; 
-            font-size: 1.3rem; 
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        p, li { 
-            line-height: 1.7; 
-            color: #4b5563; 
-            font-size: 1.05rem;
-        }
-
-        .destacado { 
-            background-color: #eff6ff; 
-            padding: 20px; 
-            border-left: 5px solid var(--primary); 
-            border-radius: 8px; 
-            margin: 25px 0; 
-        }
-
-        .destacado strong {
-            color: var(--primary);
-            font-size: 1.1rem;
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        ul { list-style-type: disc; padding-left: 20px; }
-        li { margin-bottom: 10px; }
-
-        .btn-back { 
-            display: inline-flex; 
-            align-items: center;
-            gap: 5px;
-            text-decoration: none; 
-            color: #666; 
-            font-weight: bold; 
-            margin-bottom: 25px; 
-            padding: 8px 16px;
-            background: white;
-            border-radius: 20px;
-            border: 1px solid #ddd;
-            transition: 0.3s;
-        }
-        .btn-back:hover { 
-            color: var(--primary); 
-            border-color: var(--primary);
-            background: #eff6ff;
-        }
-
-        .main-footer {
-            width: 100%;
-            margin-top: auto; 
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
             padding: 40px 20px;
-            background-color: white;
-            border-top: 1px solid #e5e7eb;
-            text-align: center;
-            box-sizing: border-box; 
-        }
-
-        .footer-content {
-            max-width: 800px;
-            margin: 0 auto;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            min-height: 100vh;
+            line-height: 1.6;
         }
 
-        .footer-links {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
+            max-width: 600px;
         }
 
-        .footer-link {
+        h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .doc-container {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px; /* Bordes más cerrados, menos redondos */
+            padding: 40px;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Sombra mínima */
+        }
+
+        .doc-container p {
+            margin-bottom: 20px;
+            font-size: 1rem;
+            color: #374151;
+        }
+
+        .alert-box {
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .alert-title {
+            color: var(--primary);
+            font-weight: 700;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        h2 {
+            color: #111827;
+            font-size: 1.25rem;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        ul {
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        .footer-meta {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: #9ca3af;
+            font-size: 0.85rem;
+        }
+
+        .btn-back {
+            margin-top: 30px;
             text-decoration: none;
-            color: #4b5563;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
+            color: var(--text-secondary);
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 6px;
+            background: white;
+            border: 1px solid #d1d5db;
+            transition: all 0.2s;
+        }
+
+        .btn-back:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .bmc-floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #FFDD00;
+            color: #000;
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            background-color: #f9fafb;
+            gap: 10px;
+            font-weight: 600;
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 100;
         }
 
-        .footer-link:hover {
-            color: var(--primary);
-            background-color: #dbeafe;
-            transform: translateY(-2px);
-        }
-
-        .copyright {
-            font-size: 0.85rem;
-            color: #9ca3af;
-            margin-top: 10px;
-        }
-
-        .heart {
-            color: #ef4444;
-            display: inline-block;
-            animation: palpitar 2s infinite;
-        }
-
-        @keyframes palpitar {
-            0% { transform: scale(0.95); }
-            70% { transform: scale(1.1); }
-            100% { transform: scale(0.95); }
-        }
-
-        /* Para móviles */
         @media (max-width: 600px) {
-            .container { padding: 20px; }
-            h1 { font-size: 1.5rem; }
+            body { padding: 20px 15px; }
+            .doc-container { padding: 25px; }
+            h1 { font-size: 1.75rem; }
+            .bmc-text { display: none; }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <a href="Inicio.html" class="btn-back">← Volver al inicio</a>
-        
-        <br>
-        <h1>Políticas y Filosofía del Proyecto</h1>
+    <div class="header-section">
+        <h1>Políticas y Filosofía</h1>
+        <div class="subtitle">Transparencia, respeto y comunidad estudiantil.</div>
+    </div>
 
-        <p>Búho Rater nació con una misión simple: <strong>ayudar a los estudiantes a tomar decisiones informadas</strong> sobre su carga académica. Creemos que la transparencia mejora la calidad educativa para todos.</p>
+    <div class="doc-container">
+        <p>Búho Rater nació con una misión simple: <strong>ayudar a los estudiantes a tomar decisiones informadas</strong> sobre su carga académica. Creemos firmemente que la transparencia mejora la calidad educativa para todos.</p>
 
-        <div class="destacado">
-            <strong>🦉 Declaración sobre el Respeto Docente</strong>
-            Queremos ser muy claros: este proyecto <u>NO tiene como objetivo perjudicar la carrera laboral de ningún profesor</u>.
-            <br><br>
-            Entendemos que la enseñanza es una labor compleja y digna. El propósito de las reseñas es identificar estilos de enseñanza, no atacar a las personas. Un profesor "estricto" para un alumno puede ser "el mejor" para otro que busca retos. Buscamos facilitar el <em>match</em> perfecto entre alumno y maestro.
+        <div class="alert-box">
+            <span class="alert-title">🦉 Declaración sobre el Respeto Docente</span>
+            <p style="margin:0;">Queremos ser muy claros: este proyecto <u>NO tiene como objetivo perjudicar la carrera laboral de ningún profesor</u>.</p>
+            <br>
+            <p style="margin:0;">Entendemos que la enseñanza es una labor compleja y digna. El propósito de las reseñas es identificar estilos de enseñanza, no atacar a las personas. Un profesor "estricto" para un alumno puede ser "el mejor" para otro que busca retos. Buscamos facilitar el <em>match</em> perfecto entre alumno y maestro.</p>
         </div>
 
-        <h2>🛡️ 1. Responsabilidad del Contenido</h2>
+        <h2>1. Responsabilidad del Contenido</h2>
         <p>Las reseñas publicadas en este sitio reflejan únicamente la opinión subjetiva y personal de los estudiantes que las escriben. <strong>Búho Rater actúa como un medio de expresión y no valida la veracidad de dichas afirmaciones.</strong></p>
-        <p>Sin embargo, para mantener una comunidad sana, nos reservamos el derecho de eliminar unilateralmente cualquier comentario que contenga:</p>
+        <p>Para mantener una comunidad sana, nos reservamos el derecho de eliminar unilateralmente cualquier comentario que contenga:</p>
         <ul>
             <li>Insultos directos, groserías o lenguaje de odio.</li>
             <li>Difamación, calumnias o acusaciones graves sin pruebas.</li>
-            <li>Información personal irrelevante a la actividad docente que fomente el odio (vida privada, apariencia física, etc..).</li>
+            <li>Información personal irrelevante a la actividad docente (vida privada, apariencia física, etc.).</li>
         </ul>
 
-        <h2>🔒 2. Privacidad y Anonimato</h2>
+        <h2>2. Privacidad y Anonimato</h2>
         <p>Tu privacidad es sagrada. Diseñamos este sistema para que sea seguro:</p>
         <ul>
-            <li>No necesitas crear una cuenta ni dar tu correo.</li>
+            <li>No necesitas crear una cuenta ni dar tu correo electrónico.</li>
             <li>No guardamos tu nombre, matrícula ni datos personales.</li>
             <li>Utilizamos tecnología de "huella digital anónima" únicamente para evitar el spam y asegurar que solo exista una reseña por alumno/profesor.</li>
         </ul>
 
-        <h2>🎓 3. Independencia</h2>
+        <h2>3. Independencia</h2>
         <p>Este es un proyecto estudiantil independiente, hecho por amor al arte y a la programación. <strong>No tiene relación oficial con la Universidad de Sonora (UNISON)</strong> ni con su administración o sindicatos.</p>
 
+        <div class="footer-meta">
+            © 2025 Búho Rater • Hecho con ❤️ por un estudiante de Ingeniería.
+        </div>
     </div>
 
-    <footer class="main-footer">
-        <div class="footer-content">
-            <div class="footer-links">
-                <a href="Inicio.html" class="footer-link">🏠 Volver al Inicio</a>
-                <a href="https://forms.gle/zycskRMqps41jPSM9" target="_blank" class="footer-link">🐞 Reportar Bug / Agregar Profe</a>
-                <a href="mailto:juanfernandoincognito@gmail.com" class="footer-link">✉️ Contacto</a>
-            </div>
+    <a href="index.html" class="btn-back">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Volver al inicio
+    </a>
 
-            <div class="copyright">
-                <p>Hecho con <span class="heart">❤️</span> por un estudiante de Ingeniería.</p>
-                <p style="font-size: 0.75rem; opacity: 0.8;">Búho Rater es un proyecto independiente y no está afiliado a la Universidad de Sonora.</p>
-                <p>Juanito pistolas 18/12/25</p>
-                <p>© 2025 Búho Rater</p>
-            </div>
-        </div>
-    </footer>
+    <a href="https://www.buymeacoffee.com/starcatunison" target="_blank" class="bmc-floating-btn">
+        <span style="font-size: 1.2rem;">☕</span>
+        <span class="bmc-text">Invítame un café</span>
+    </a>
 
 </body>
 </html>
