@@ -360,7 +360,7 @@
                 <optgroup label="💰 Económicas y Administrativas">
                     <option value="Contabilidad">Contabilidad</option>
                     <option value="Economía">Economía</option>
-                    <option value="Administración">Administración</option>
+                    <option value="314200">Administración</option>
                 </optgroup>
                 <optgroup label="⚖️ Ciencias Sociales">
                     <option value="Derecho">Derecho</option>
@@ -505,33 +505,49 @@
                 const desde = paginaActual * tamanoPagina;
                 const hasta = desde + tamanoPagina - 1;
                 try {
-                    let query = _supabase.from('maestros');
-                    if (depto !== 'todos') {
-                        query = query.select('*, departamentos!inner(nombre)', { count: 'exact' }).ilike('departamentos.nombre', `%${depto}%`);
-                    } else {
-                        query = query.select('*, departamentos(nombre)', { count: 'exact' });
-                    }
 
-                    if (orden === 'nombre') {
-                        query = query.order('nombre', { ascending: true });
-                    } else if (orden === 'mejor') {
-                        query = query.order('es_colaborador', { ascending: false });
-                        query = query.order('promedio_calidad', { ascending: false, nullsFirst: false });
-                    } else if (orden === 'peor') {
-                        query = query.order('promedio_calidad', { ascending: true, nullsFirst: false });
-                    }
 
-                    const { data, count, error } = await query.range(desde, hasta);
-                    if (error) throw error;
+    let query = _supabase.from('maestros');
 
-                    renderizar(data, paginaActual > 0);
-                    if (count > hasta + 1) {
-                        btnCargarMas.style.display = 'block';
-                        paginaActual++;
-                    } else {
-                        btnCargarMas.style.display = 'none';
-                    }
-                } catch (err) { console.error(err); }
+    if (depto !== 'todos') {
+        if (depto === '314200') {
+            query = query
+                .select('*, departamentos(nombre)', { count: 'exact' })
+                .eq('departamento_id', 314200);
+        } else {
+            query = query
+                .select('*, departamentos!inner(nombre)', { count: 'exact' })
+                .eq('departamentos.nombre', depto);
+        }
+    } else {
+        query = query.select('*, departamentos(nombre)', { count: 'exact' });
+    }
+
+    if (orden === 'nombre') {
+        query = query.order('nombre', { ascending: true });
+    } else if (orden === 'mejor') {
+        query = query.order('es_colaborador', { ascending: false });
+        query = query.order('promedio_calidad', { ascending: false, nullsFirst: false });
+    } else if (orden === 'peor') {
+        query = query.order('promedio_calidad', { ascending: true, nullsFirst: false });
+    }
+
+    const { data, count, error } = await query.range(desde, hasta);
+
+    if (error) throw error;
+
+    renderizar(data, paginaActual > 0);
+
+    if (count > hasta + 1) {
+        btnCargarMas.style.display = 'block';
+        paginaActual++;
+    } else {
+        btnCargarMas.style.display = 'none';
+    }
+                } catch(error) {
+                    console.error(error);
+                    grid.innerHTML = '<div class="loading">Error al cargar datos.</div>';
+                }
             }
         }
 
