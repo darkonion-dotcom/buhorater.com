@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -398,12 +399,10 @@
     <div id="coffee-popup" class="coffee-popup">
         <div class="coffee-content">
             <button onclick="cerrarCoffee()" style="position:absolute; right:15px; top:15px; border:none; background:none; font-size:1.2rem; color:#999; cursor:pointer;">✕</button>
-            <div style="font-size: 2.5rem; margin-bottom: 10px;">☕</div>
-            <h3 style="margin:0 0 10px 0; color:var(--text-main);">Apoya el proyecto</h3>
-            <p style="margin:0 0 20px 0; font-size:0.9rem; color:var(--text-secondary);">El servidor cuesta dinero. Si te sirvió, invítanos un café.</p>
-            <a href="https://www.buymeacoffee.com/starcatunison" target="_blank" style="background:#FFDD00; color:black; text-decoration:none; padding:10px 20px; border-radius:20px; font-weight:600; font-size:0.9rem; display:inline-block;">Invitar un Café</a>
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">⚠️</div>
+            <p style="margin:0 0 20px 0; font-size:0.95rem; color:var(--text-main); font-weight: 500;">al parecer a la unison no le gusto colaborar,bloquearon la ip del su internet gratuito por lo cual si estas conectado a esta red no podras acceder a la pagina.</p>
             <div style="margin-top: 15px;">
-                <span onclick="cerrarCoffee()" style="color: #999; text-decoration: underline; font-size: 0.8rem; cursor:pointer;">Cerrar</span>
+                <span onclick="cerrarCoffee()" style="color: #999; text-decoration: underline; font-size: 0.8rem; cursor:pointer;">Entendido</span>
             </div>
         </div>
     </div>
@@ -637,12 +636,13 @@
 
         function cerrarCoffee() {
             document.getElementById('coffee-popup').style.display = 'none';
-            localStorage.setItem('visto_coffee', 'true');
         }
 
         setTimeout(() => {
-            if(!localStorage.getItem('visto_coffee')) document.getElementById('coffee-popup').style.display = 'flex';
-        }, 3000);
+            document.getElementById('coffee-popup').style.display = 'flex';
+        }, 1000);
     </script>
 </body>
 </html>
+
+```
