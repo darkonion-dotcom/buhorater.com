@@ -503,45 +503,44 @@
                 const desde = paginaActual * tamanoPagina;
                 const hasta = desde + tamanoPagina - 1;
                 try {
+                    let query = _supabase.from('maestros');
 
+                    if (depto !== 'todos') {
+                        if (depto === '314200') {
+                            query = query
+                                .select('*, departamentos(nombre)', { count: 'exact' })
+                                .eq('departamento_id', 314200);
+                        } else {
+                            // AQUÍ ESTÁ EL CAMBIO PARA QUE FUNCIONE EL FILTRO: ILIKE CON %
+                            query = query
+                                .select('*, departamentos!inner(nombre)', { count: 'exact' })
+                                .ilike('departamentos.nombre', `%${depto}%`);
+                        }
+                    } else {
+                        query = query.select('*, departamentos(nombre)', { count: 'exact' });
+                    }
 
-    let query = _supabase.from('maestros');
+                    if (orden === 'nombre') {
+                        query = query.order('nombre', { ascending: true });
+                    } else if (orden === 'mejor') {
+                        query = query.order('es_colaborador', { ascending: false });
+                        query = query.order('promedio_calidad', { ascending: false, nullsFirst: false });
+                    } else if (orden === 'peor') {
+                        query = query.order('promedio_calidad', { ascending: true, nullsFirst: false });
+                    }
 
-    if (depto !== 'todos') {
-        if (depto === '314200') {
-            query = query
-                .select('*, departamentos(nombre)', { count: 'exact' })
-                .eq('departamento_id', 314200);
-        } else {
-            query = query
-                .select('*, departamentos!inner(nombre)', { count: 'exact' })
-                .eq('departamentos.nombre', depto);
-        }
-    } else {
-        query = query.select('*, departamentos(nombre)', { count: 'exact' });
-    }
+                    const { data, count, error } = await query.range(desde, hasta);
 
-    if (orden === 'nombre') {
-        query = query.order('nombre', { ascending: true });
-    } else if (orden === 'mejor') {
-        query = query.order('es_colaborador', { ascending: false });
-        query = query.order('promedio_calidad', { ascending: false, nullsFirst: false });
-    } else if (orden === 'peor') {
-        query = query.order('promedio_calidad', { ascending: true, nullsFirst: false });
-    }
+                    if (error) throw error;
 
-    const { data, count, error } = await query.range(desde, hasta);
+                    renderizar(data, paginaActual > 0);
 
-    if (error) throw error;
-
-    renderizar(data, paginaActual > 0);
-
-    if (count > hasta + 1) {
-        btnCargarMas.style.display = 'block';
-        paginaActual++;
-    } else {
-        btnCargarMas.style.display = 'none';
-    }
+                    if (count > hasta + 1) {
+                        btnCargarMas.style.display = 'block';
+                        paginaActual++;
+                    } else {
+                        btnCargarMas.style.display = 'none';
+                    }
                 } catch(error) {
                     console.error(error);
                     grid.innerHTML = '<div class="loading">Error al cargar datos.</div>';
