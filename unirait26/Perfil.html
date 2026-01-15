@@ -451,10 +451,27 @@
             const calidad = document.getElementById('in-calidad').value;
             const dificultad = document.getElementById('in-dificultad').value;
             const texto = document.getElementById('in-texto').value;
+            if (texto.trim().length < 20) {
+                alert("Tu reseña es muy corta. Por favor escribe un poco más (mínimo 20 letras) para que sea útil.");
+                return;
+            }
 
-            if (!texto.trim()) { alert("Por favor escribe un comentario."); return; }
+            const btn = document.getElementById('btn-enviar'); 
 
-            const btn = document.getElementById('btn-enviar');
+            if (!texto.trim()) { 
+                alert("Por favor escribe un comentario."); 
+                return; 
+            }
+            
+            if (texto.trim().length < 15) {
+                alert("Tu reseña es muy corta (mínimo 15 letras). Cuéntanos un poco más.");
+                return;
+            }
+
+            if (!visitorId || visitorId.trim() === "") {
+                alert("Error de seguridad: Comentario sospechoso.");
+                return; 
+            }
             btn.disabled = true;
             btn.innerText = "Enviando...";
 
@@ -463,7 +480,7 @@
                 calidad: parseInt(calidad),
                 dificultad: parseInt(dificultad),
                 texto: texto,
-                device_id: visitorId
+                device_id: visitorId 
             });
 
             if (error) {
@@ -477,7 +494,7 @@
                 btn.innerText = "Enviada";
                 cargarPerfil();
             }
-        }
+        }   
 
         cargarPerfil();
     </script>
