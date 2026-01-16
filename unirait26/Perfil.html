@@ -6,6 +6,8 @@
     <title>Perfil del Maestro - Búho Rater</title>
     <meta name="description" content="Lee reseñas y calificaciones de profesores de la Universidad de Sonora.">
     
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
@@ -248,6 +250,8 @@
                 <textarea id="in-texto" placeholder="¿Cómo es su clase? ¿Deja mucha tarea? ¿Explica bien?"></textarea>
             </div>
 
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAACMv0WDa3JjMsaGI" data-theme="light" style="margin-top: 15px; margin-bottom: 5px;"></div>
+
             <button id="btn-enviar" onclick="enviarResena()" class="btn-submit" disabled>Cargando...</button>
         </div>
 
@@ -435,8 +439,33 @@
         }
 
         async function enviarResena() {
-            if (!visitorId) return;
+            const btn = document.getElementById('btn-enviar');
 
+            // 1. VALIDACIÓN CAPTCHA (Turnstile)
+            const captchaResponse = turnstile.getResponse();
+            if (!captchaResponse) {
+                alert("Por favor verifica que no eres un robot completando el captcha.");
+                return;
+            }
+
+            // 2. VALIDACIONES DE TEXTO
+            const texto = document.getElementById('in-texto').value;
+            if (!texto.trim()) { 
+                alert("Por favor escribe un comentario."); 
+                return; 
+            }
+            if (texto.trim().length < 15) {
+                alert("Tu reseña es muy corta (mínimo 15 letras). Cuéntanos un poco más.");
+                return;
+            }
+
+            // 3. VALIDACIÓN DE SEGURIDAD (ID)
+            if (!visitorId || visitorId.trim() === "") {
+                alert("⚠️ Error de seguridad: Comentario sospechoso (No ID).");
+                return; 
+            }
+
+            // 4. VERIFICAR DUPLICADOS
             const { data: check } = await _supabase
                 .from('resenas')
                 .select('id')
@@ -448,30 +477,10 @@
                 return;
             }
 
+            // 5. ENVIAR A SUPABASE
             const calidad = document.getElementById('in-calidad').value;
             const dificultad = document.getElementById('in-dificultad').value;
-            const texto = document.getElementById('in-texto').value;
-            if (texto.trim().length < 20) {
-                alert("Tu reseña es muy corta. Por favor escribe un poco más (mínimo 20 letras) para que sea útil.");
-                return;
-            }
 
-            const btn = document.getElementById('btn-enviar'); 
-
-            if (!texto.trim()) { 
-                alert("Por favor escribe un comentario."); 
-                return; 
-            }
-            
-            if (texto.trim().length < 15) {
-                alert("Tu reseña es muy corta (mínimo 15 letras). Cuéntanos un poco más.");
-                return;
-            }
-
-            if (!visitorId || visitorId.trim() === "") {
-                alert("Error de seguridad: Comentario sospechoso.");
-                return; 
-            }
             btn.disabled = true;
             btn.innerText = "Enviando...";
 
@@ -488,11 +497,13 @@
                 alert("Error al enviar. Intenta de nuevo.");
                 btn.disabled = false;
                 btn.innerText = "Publicar Reseña";
+                turnstile.reset(); 
             } else {
                 alert("¡Gracias por tu reseña!");
                 document.getElementById('in-texto').value = '';
                 btn.innerText = "Enviada";
                 cargarPerfil();
+                turnstile.reset();
             }
         }   
 
