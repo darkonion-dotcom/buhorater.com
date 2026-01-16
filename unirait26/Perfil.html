@@ -357,7 +357,7 @@
             const icon = document.getElementById('hint-icon');
             const text = document.getElementById('hint-text');
 
-            if (wrapper.style.maxHeight && wrapper.style.maxHeight !== '0px') {
+            if (wrapper.classList.contains('open')) {
                 wrapper.style.maxHeight = '0px';
                 wrapper.classList.remove('open');
                 icon.style.transform = 'rotate(0deg)';
@@ -371,11 +371,16 @@
         }
 
         async function cargarResenas() {
-            const { data: resenas } = await _supabase
+            const { data: resenas, error } = await _supabase
                 .from('resenas')
                 .select('*')
                 .eq('maestro_id', maestroId)
-                .order('fecha', { ascending: false });
+                .order('id', { ascending: false });
+
+            if (error) {
+                console.error("Error al cargar reseñas:", error.message);
+                return;
+            }
 
             const divLista = document.getElementById('lista-resenas');
             divLista.innerHTML = '';
@@ -386,6 +391,7 @@
                 resenas.forEach(r => {
                     const tagCalidad = r.calidad >= 4 ? 'good' : (r.calidad <= 2 ? 'bad' : '');
                     const tagDif = r.dificultad >= 4 ? 'bad' : (r.dificultad <= 2 ? 'good' : '');
+                    const fecha = r.created_at ? new Date(r.created_at).toLocaleDateString() : 'Reciente';
 
                     divLista.innerHTML += `
                         <div class="review-card">
@@ -394,7 +400,7 @@
                                     <span class="tag ${tagCalidad}">⭐ ${r.calidad} Calidad</span>
                                     <span class="tag ${tagDif}">🔥 ${r.dificultad} Dif.</span>
                                 </div>
-                                <span class="review-date">${new Date(r.fecha).toLocaleDateString()}</span>
+                                <span class="review-date">${fecha}</span>
                             </div>
                             <p class="review-text">${r.texto || 'Sin comentario.'}</p>
                         </div>
@@ -416,6 +422,7 @@
             });
 
             const container = document.getElementById('breakdown-content');
+            if (!container) return;
             container.innerHTML = ''; 
 
             for (let i = 5; i >= 1; i--) {
@@ -441,14 +448,16 @@
         async function enviarResena() {
             const btn = document.getElementById('btn-enviar');
 
-            // 1. VALIDACIÓN CAPTCHA (Turnstile)
-            const captchaResponse = turnstile.getResponse();
+            let captchaResponse = null;
+            try {
+                captchaResponse = turnstile.getResponse();
+            } catch(e) { console.error("Turnstile no cargó"); }
+
             if (!captchaResponse) {
-                alert("Por favor verifica que no eres un robot completando el captcha.");
+                alert("Por favor verifica que no eres un robot completando el captcha (o revisa tu conexión).");
                 return;
             }
 
-            // 2. VALIDACIONES DE TEXTO
             const texto = document.getElementById('in-texto').value;
             if (!texto.trim()) { 
                 alert("Por favor escribe un comentario."); 
@@ -459,13 +468,11 @@
                 return;
             }
 
-            // 3. VALIDACIÓN DE SEGURIDAD (ID)
             if (!visitorId || visitorId.trim() === "") {
                 alert("⚠️ Error de seguridad: Comentario sospechoso (No ID).");
                 return; 
             }
 
-            // 4. VERIFICAR DUPLICADOS
             const { data: check } = await _supabase
                 .from('resenas')
                 .select('id')
@@ -477,7 +484,6 @@
                 return;
             }
 
-            // 5. ENVIAR A SUPABASE
             const calidad = document.getElementById('in-calidad').value;
             const dificultad = document.getElementById('in-dificultad').value;
 
@@ -497,13 +503,13 @@
                 alert("Error al enviar. Intenta de nuevo.");
                 btn.disabled = false;
                 btn.innerText = "Publicar Reseña";
-                turnstile.reset(); 
+                try { turnstile.reset(); } catch(e){}
             } else {
                 alert("¡Gracias por tu reseña!");
                 document.getElementById('in-texto').value = '';
                 btn.innerText = "Enviada";
                 cargarPerfil();
-                turnstile.reset();
+                try { turnstile.reset(); } catch(e){}
             }
         }   
 
