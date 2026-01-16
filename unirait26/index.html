@@ -508,16 +508,15 @@
                     if (depto !== 'todos') {
                         if (depto === '314200') {
                             query = query
-                                .select('*, departamentos(nombre)', { count: 'exact' })
+                                .select('id, nombre, foto_url, promedio_calidad, es_colaborador, departamento_id, departamentos(nombre)', { count: 'exact' })
                                 .eq('departamento_id', 314200);
                         } else {
-                            // AQUÍ ESTÁ EL CAMBIO PARA QUE FUNCIONE EL FILTRO: ILIKE CON %
                             query = query
-                                .select('*, departamentos!inner(nombre)', { count: 'exact' })
+                                .select('id, nombre, foto_url, promedio_calidad, es_colaborador, departamento_id, departamentos!inner(nombre)', { count: 'exact' })
                                 .ilike('departamentos.nombre', `%${depto}%`);
                         }
                     } else {
-                        query = query.select('*, departamentos(nombre)', { count: 'exact' });
+                        query = query.select('id, nombre, foto_url, promedio_calidad, es_colaborador, departamento_id, departamentos(nombre)', { count: 'exact' });
                     }
 
                     if (orden === 'nombre') {
@@ -551,7 +550,7 @@
         async function buscar(t) {
             grid.innerHTML = '<div class="loading">Buscando...</div>';
             const palabras = t.trim().split(/\s+/);
-            let query = _supabase.from('maestros').select('*, departamentos(nombre)');
+            let query = _supabase.from('maestros').select('id, nombre, foto_url, promedio_calidad, es_colaborador, departamento_id, departamentos(nombre)');
             palabras.forEach(palabra => {
                 if (palabra.length > 0) query = query.ilike('nombre', `%${palabra}%`);
             });
