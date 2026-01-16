@@ -10,8 +10,8 @@ app = Flask(__name__)
 CORS(app)
 
 
-URL = os.environ.get("SUPABASE_URL", "https://bpiujyhyejolnthdezxf.supabase.co")
-KEY = os.environ.get("SUPABASE_ANON_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwaXVqeWh5ZWpvbG50aGRlenhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwMDI4NzUsImV4cCI6MjA4MTU3ODg3NX0.pPjXHC2saUAZ81T36PSBRgQGbDqQfw6A_Jxf1R4XMrU")
+URL = os.environ.get("SUPABASE_URL")
+KEY = os.environ.get("SUPABASE_ANON_KEY")
 supabase: Client = create_client(URL, KEY)
 
 TABLA_PROFESORES = 'maestros'

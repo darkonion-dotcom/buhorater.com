@@ -448,7 +448,7 @@
 
             const formData = new FormData();
             formData.append('file', file);
-            const URL_API = 'https://buhorater-backend.onrender.com/analizar-horario';
+            const URL_API = `${process.env.NEXT_PUBLIC_API_URL}/analizar-horario`;
 
             try {
                 const response = await fetch(URL_API, { method: 'POST', body: formData });
@@ -474,8 +474,8 @@
             }
         }
 
-        const SUPABASE_URL = 'https://bpiujyhyejolnthdezxf.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwaXVqeWh5ZWpvbG50aGRlenhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwMDI4NzUsImV4cCI6MjA4MTU3ODg3NX0.pPjXHC2saUAZ81T36PSBRgQGbDqQfw6A_Jxf1R4XMrU';
+        const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
