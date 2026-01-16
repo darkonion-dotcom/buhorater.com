@@ -4,3 +4,4 @@ pdfplumber
 supabase
 gunicorn
 pdfminer.six
+geocoder
