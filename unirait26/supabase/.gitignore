@@ -34,3 +34,17 @@ ENV/
 # --- SUPABASE LOCAL ---
 # Ignora logs o archivos temporales de supabase si usas el CLI
 supabase/.temp/
+
+# Secretos
+.env
+*.local
+unirait26/.env.local
+
+# Dependencias y Build
+node_modules/
+unirait26/node_modules/
+unirait26/.next/
+.next/
+
+# Otros
+unirait26/legacy/

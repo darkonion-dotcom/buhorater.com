@@ -1,0 +1,53 @@
+import { NextResponse } from 'next/server'
+
+const rateLimitMap = new Map()
+
+export function proxy(request) {
+  const { pathname } = request.nextUrl
+  const country = request.headers.get('x-vercel-ip-country') || 'MX'
+
+  if (process.env.NODE_ENV === 'production' && country !== 'MX') {
+    return new NextResponse(
+      JSON.stringify({ error: "Búho Rater solo está disponible para estudiantes en México." }),
+      { status: 403, headers: { 'Content-Type': 'application/json' } }
+    )
+  }
+
+  if (pathname.startsWith('/api/')) {
+    const ip = request.ip || request.headers.get('x-forwarded-for') || '127.0.0.1'
+    const ahora = Date.now()
+    const ventanaTiempo = 10000 
+    const limitePeticiones = 15 
+
+    if (!rateLimitMap.has(ip)) {
+      rateLimitMap.set(ip, { cuenta: 1, inicio: ahora })
+      return NextResponse.next()
+    }
+
+    const registro = rateLimitMap.get(ip)
+
+    if (ahora - registro.inicio > ventanaTiempo) {
+      registro.cuenta = 1
+      registro.inicio = ahora
+      return NextResponse.next()
+    }
+
+    if (registro.cuenta >= limitePeticiones) {
+      return new NextResponse(
+        JSON.stringify({ error: "Demasiadas peticiones. Intenta de nuevo en 10 segundos." }),
+        { status: 429, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+
+    registro.cuenta++
+  }
+
+  return NextResponse.next()
+}
+
+export const config = {
+  matcher: [
+'/api/resenas/:path*','/api/maestros/:path*','/api/profesor/:path*','/api/contador/:path*',
+    '/((?!_next/static|_next/image|favicon.ico).*)',
+  ],
+}

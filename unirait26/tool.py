@@ -1,25 +1,21 @@
 import os
-import geocoder # No olvides: pip install geocoder
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+import uuid
 import pdfplumber
 import re
-from supabase import create_client, Client
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from mod import obtener_pais_ip, verificar_contenido_toxico
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": ["https://www.buhorater.com", "http://localhost:3000"]}})
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024 
 
+INTERNAL_API_KEY = os.environ.get("INTERNAL_API_KEY")
 
-URL = os.environ.get("SUPABASE_URL")
-KEY = os.environ.get("SUPABASE_ANON_KEY")
-supabase: Client = create_client(URL, KEY)
-
-TABLA_PROFESORES = 'maestros'
-TABLA_RESENAS = 'resenas'
-def es_mexicano():
-    ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0]
-    g = geocoder.ip(ip)
-    return g.country == 'MX'
+def verificar_autenticacion():
+    """Valida la API Key interna en los headers"""
+    key = request.headers.get('x-api-key')
+    return key == INTERNAL_API_KEY
 
 def extraer_nombres_del_pdf(pdf_path):
     nombres_encontrados = set()
@@ -32,44 +28,71 @@ def extraer_nombres_del_pdf(pdf_path):
                 coincidencias = patron_linea.findall(text)
                 for match in coincidencias:
                     nombre = match[0].strip().replace('\n', ' ')
-                    if any(x in nombre for x in ["SIN ASIGNAR", "HORARIO"]): continue
+                    palabras_ruido = ["SIN ASIGNAR", "HORARIO", "REVISAR", "FECHA", "PAGINA"]
+                    if any(x in nombre for x in palabras_ruido): continue
                     nombre = " ".join(nombre.split())
-                    nombres_encontrados.add(nombre)
+                    if len(nombre) > 5:
+                        nombres_encontrados.add(nombre)
     except Exception as e:
         print(f"Error PDF: {e}")
     return sorted(list(nombres_encontrados))
 
 @app.route('/')
-def index():
-    return jsonify({"status": "Servidor Buhorater funcionando correctamente 🦉"})
+def health_check():
+    return jsonify({"status": "Obrero activo 🦉", "moderation": "ready"})
+
+@app.route('/verificar-resena', methods=['POST'])
+def verificar_resena():
+    """Ruta para filtrar reseñas por IP e IA"""
+    if not verificar_autenticacion():
+        return jsonify({"error": "No autorizado"}), 401
+
+    ip_usuario = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
+
+    pais = obtener_pais_ip(ip_usuario)
+    if pais != "MX":
+        return jsonify({"error": f"Ubicación ({pais}) no permitida para comentar."}), 403
+
+    data = request.json
+    texto = data.get("texto", "")
+    if not texto or len(texto) < 15:
+        return jsonify({"error": "Reseña demasiado corta."}), 400
+
+    es_toxico, razones = verificar_contenido_toxico(texto)
+    if es_toxico:
+        return jsonify({
+            "status": "rejected",
+            "error": "El comentario no cumple con las normas de la comunidad.",
+            "motivos": razones
+        }), 400
+
+    return jsonify({"status": "approved"}), 200
 
 @app.route('/analizar-horario', methods=['POST'])
 def procesar_horario():
-    if not es_mexicano():
-        return jsonify({"error": "Solo México"}), 403
-    
+    if not verificar_autenticacion():
+        return jsonify({"error": "No autorizado"}), 401
+
     if 'file' not in request.files:
-        return jsonify({"error": "No file"}), 400
+        return jsonify({"error": "Archivo no encontrado"}), 400
     
     file = request.files['file']
-    temp_path = "temp_horario.pdf"
+    id_peticion = str(uuid.uuid4())
+    temp_path = f"temp_{id_peticion}.pdf"
+    
     try:
         file.save(temp_path)
-        lista_nombres_pdf = extraer_nombres_del_pdf(temp_path)
-        return jsonify({"mensaje": "Completado", "maestros": lista_nombres_pdf})
-    finally:
-        if os.path.exists(temp_path): os.remove(temp_path)
-@app.route('/publicar-resena', methods=['POST'])
-def publicar_resena():
-    if not es_mexicano():
-        return jsonify({"error": "Solo México"}), 403
-    
-    datos = request.json
-    try:
-        response = supabase.table(TABLA_RESENAS).insert(datos).execute()
-        return jsonify({"status": "éxito"}), 201
+        lista_nombres = extraer_nombres_del_pdf(temp_path)
+        return jsonify({"status": "success", "maestros": lista_nombres})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Error al procesar el archivo"}), 500
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    return jsonify({"error": "Archivo demasiado grande (máximo 2MB)"}), 413
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))

@@ -1,0 +1,17 @@
+{
+  "name": "buhorater-unison",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@fingerprintjs/fingerprintjs": "latest",
+    "@supabase/supabase-js": "latest",
+    "next": "^16.1.3",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  }
+}
