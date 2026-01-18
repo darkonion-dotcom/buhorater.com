@@ -10,7 +10,7 @@ export async function POST(request) {
 
     const { texto } = body;
 
-    const res = await fetch("https://tu-proyecto-en-render.onrender.com/verificar-resena", {
+    const res = await fetch("https://buhorater-backend.onrender.com/verificar-resena", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
