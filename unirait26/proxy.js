@@ -4,8 +4,11 @@ const rateLimitMap = new Map()
 
 export function proxy(request) {
   const { pathname } = request.nextUrl
-  const country = request.headers.get('x-vercel-ip-country') || 'MX'
+  
+  // CAMBIO: Se eliminó "|| 'MX'". Si no hay header, no entra.
+  const country = request.headers.get('cf-ipcountry') || request.headers.get('x-vercel-ip-country')
 
+  // Si country es null, undefined o cualquier cosa que no sea 'MX', bloquea.
   if (process.env.NODE_ENV === 'production' && country !== 'MX') {
     return new NextResponse(
       JSON.stringify({ error: "Búho Rater solo está disponible para estudiantes en México." }),
@@ -14,7 +17,10 @@ export function proxy(request) {
   }
 
   if (pathname.startsWith('/api/')) {
-    const ip = request.ip || request.headers.get('x-forwarded-for') || '127.0.0.1'
+    // También quitamos la asunción de localhost en producción si prefieres ser estricto
+    // (Aunque para rate-limit se recomienda tener un valor fallback para que no truene el Map)
+    const ip = request.headers.get('cf-connecting-ip') || request.ip || request.headers.get('x-forwarded-for') || 'unknown'
+    
     const ahora = Date.now()
     const ventanaTiempo = 10000 
     const limitePeticiones = 15 
@@ -47,7 +53,10 @@ export function proxy(request) {
 
 export const config = {
   matcher: [
-'/api/resenas/:path*','/api/maestros/:path*','/api/profesor/:path*','/api/contador/:path*',
+    '/api/resenas/:path*',
+    '/api/maestros/:path*',
+    '/api/profesor/:path*',
+    '/api/contador/:path*',
     '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 }
