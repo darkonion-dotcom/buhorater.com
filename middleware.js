@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 
 export function middleware(req) {
-
   const cfCountry = req.headers.get('cf-ipcountry');
-
   const country = cfCountry || 'MX';
+  console.log(`[Seguridad] Pais: ${cfCountry} | Usado: ${country} | Ruta: ${req.nextUrl.pathname}`);
+
   const isProtectedPath = 
     req.nextUrl.pathname.startsWith('/api/resenas') || 
     req.nextUrl.pathname === '/';
