@@ -2,17 +2,19 @@ import { NextResponse } from 'next/server';
 
 export function middleware(req) {
   const cfCountry = req.headers.get('cf-ipcountry');
+
   const country = cfCountry || 'MX';
-  console.log(`[Seguridad] Pais: ${cfCountry} | Usado: ${country} | Ruta: ${req.nextUrl.pathname}`);
+
+  console.log(`[Acceso] Pais detectado: ${cfCountry} | Ruta: ${req.nextUrl.pathname}`);
 
   const isProtectedPath = 
     req.nextUrl.pathname.startsWith('/api/resenas') || 
     req.nextUrl.pathname === '/';
 
   if (isProtectedPath) {
-    if (country !== 'MX') {
+    if (country !== 'MX' && country !== 'US') {
       return NextResponse.json(
-        { error: 'Búho Rater solo está disponible para estudiantes en México 🇲🇽' },
+        { error: 'Búho Rater solo está disponible en la región de México y EE.UU. 🇲🇽🇺🇸' },
         { status: 403 }
       );
     }
