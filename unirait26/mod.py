@@ -20,47 +20,37 @@ def verificar_contenido_toxico(texto):
         return False, []
 
     system_prompt = """
-    Eres el Moderador de Seguridad de "BuhoRater", una plataforma para estudiantes universitarios en México.
+    Eres el Moderador de Seguridad de "BuhoRater" plataforma de reseñas o evaluaciones académicas para la UNIVERSIDAD DE SONORA hermosillo sonora M.
     
-    TU OBJETIVO:
-    Aprobar reseñas que ayuden a identificar ESTILOS DE ENSEÑANZA y MÉTODOS DE EVALUACIÓN.
-    Rechazar contenido que exponga la VIDA PERSONAL del maestro o genere RIESGOS LEGALES.
+    TU NUEVA MISIÓN:
+    Ser TOLERANTE con opiniones cortas, mal escritas o informales.
+    Ser ESTRICTO solo con amenazas, acoso, odio o spam basura.
 
-    REGLAS DE ORO (MÉXICO):
+    ✅ APROBAR (PASS) - TODO ESTO ESTÁ PERMITIDO:
+    1. Opiniones Simples/Cortas: "Es buen profe", "Recomendado", "Es chido", "No me gustó", "Es bueno nada mas", "Pasable".
+    2. Mala ortografía o redacción: NO juzgues la calidad literaria. Si se entiende, APRUÉBALO.
+    3. Críticas académicas duras: "No enseña nada", "Es aburrido", "Su clase es horrible", "Es un barco".
+    4. Jerga mexicana: "Wey", "no mames", "está cabrón", "chale".
 
-    ✅ APROBAR (PASS) - CRÍTICA ACADÉMICA Y ESTILO:
-    - Comentarios sobre dificultad: "Es un barco", "esta muy dificil", "regala calificación", "es imposible pasar".
-    - Comentarios sobre didáctica: "No sabe explicar", "su clase es aburrida", "es un genio", "aprendes mucho", "se la pasa leyendo diapositivas".
-    - Quejas de actitud en el aula: "Es prepotente", "es muy estricto", "es buena onda", "le cae mal a todos".
-    - Jerga estudiantil mexicana leve: "No mames, está difícil", "está cabrón", "wey".
+    ❌ RECHAZAR (REJECT) - SOLO LO SIGUIENTE:
+    1. ACOSO/VIDA PERSONAL: "Engaña a su esposa", "Es un borracho", "Vive en tal calle", "Su hija es...", "Me acosó sexualmente".
+    2. ODIO/DISCRIMINACIÓN: Insultos homofóbicos ("puto", "maricón"), racistas o sobre defectos físicos ("gordo asqueroso").
+    3. INSULTOS SIN SENTIDO: Insultos directos y agresivos sin contexto académico ("Chinga tu madre", "Pendejo de mierda").
+    4. GIBBERISH/SPAM: Texto aleatorio sin sentido real ("asdfghjkl", "holsdhfsdf").
 
-    ❌ RECHAZAR (REJECT) - RIESGO LEGAL Y VIDA PERSONAL:
-    1. ACUSACIONES GRAVES (Inmediato REJECT): Mencionar acoso, tocamientos, miradas lascivas, corrupción, pedir dinero/sobornos, venta de calificaciones. (Esto es material para denuncia legal, no para una reseña pública).
-    2. VIDA PRIVADA: Comentarios sobre su esposa/o, familia, divorcios, dónde vive, qué hace los fines de semana, vicios personales (alcoholismo/drogas fuera del aula).
-    3. ATAQUES A LA IDENTIDAD: Insultos sobre su físico (gordo, feo), orientación sexual (maricón, puto, gay), o discapacidad.
-    4. INSULTOS SIN CONTENIDO: "Es un pendejo", "Chinga tu madre". (Si dice "Es un pendejo explicando", se puede tolerar, pero se estricto, el insulto puro se rechaza).
-
-    FORMATO DE RESPUESTA JSON:
-    {
-      "decision": "PASS" o "REJECT",
-      "is_toxic": true,
-      "motivos": ["motivo_corto_1", "motivo_corto_2"]
-    }
-    Ejemplos de motivos: "acusacion_delictiva", "vida_personal", "insulto_grave", "spam".
+    FORMATO JSON:
+    { "decision": "PASS" o "REJECT", "is_toxic": true/false, "motivos": ["motivo"] }
     """
 
     url = "https://api.openai.com/v1/chat/completions"
     
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {api_key}"
-    }
+    headers = { "Content-Type": "application/json", "Authorization": f"Bearer {api_key}" }
 
     payload = {
         "model": "gpt-4o-mini", 
         "messages": [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Reseña a moderar: '{texto}'"}
+            {"role": "user", "content": f"Reseña: '{texto}'"}
         ],
         "temperature": 0.0,
         "response_format": { "type": "json_object" }
@@ -68,20 +58,13 @@ def verificar_contenido_toxico(texto):
     
     try:
         response = requests.post(url, headers=headers, json=payload, timeout=8)
-        
-        if response.status_code != 200:
-            return False, [] 
+        if response.status_code != 200: return False, [] 
 
         data = response.json()
-        contenido_ia = data['choices'][0]['message']['content']
+        resultado = json.loads(data['choices'][0]['message']['content'])
         
-        resultado = json.loads(contenido_ia)
-        
-        decision = resultado.get("decision", "PASS")
-        motivos = resultado.get("motivos", [])
-        
-        if decision == "REJECT":
-            return True, motivos
+        if resultado.get("decision") == "REJECT":
+            return True, resultado.get("motivos", [])
         
         return False, []
 

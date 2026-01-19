@@ -1,25 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-// --------------------------------------------------------------------------
-// 1. Configuración Segura de Supabase
-// --------------------------------------------------------------------------
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error("🚨 ERROR CRÍTICO: Faltan las variables SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en .env.local");
+  console.error("Faltan variables de entorno de Supabase");
 }
 
-// Inicialización segura
 const supabaseAdmin = createClient(
   supabaseUrl || "",
   supabaseKey || ""
 );
 
-// --------------------------------------------------------------------------
-// 2. Endpoint GET (Obtener reseñas)
-// --------------------------------------------------------------------------
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -38,22 +31,23 @@ export async function GET(request) {
     
     return NextResponse.json(data || []);
   } catch (err) {
-    console.error("Error en GET:", err);
     return NextResponse.json({ error: 'Error al obtener reseñas' }, { status: 500 });
   }
 }
 
-// --------------------------------------------------------------------------
-// 3. Endpoint POST (Crear reseña con Moderación Inteligente)
-// --------------------------------------------------------------------------
 export async function POST(request) {
   try {
+    const country = request.headers.get('x-vercel-ip-country');
+    
+    if (country && country !== 'MX') {
+      return NextResponse.json({ 
+        error: `Lo sentimos, BuhoRater solo está disponible en México. (Detectado: ${country})` 
+      }, { status: 403 });
+    }
+
     const body = await request.json();
     const { maestro_id, texto, calidad, dificultad, device_id } = body;
 
-    console.log("📦 INTENTO DE RESEÑA RECIBIDO:", { maestro_id, texto });
-
-    // A. Bloqueo de duplicados (Preventivo)
     const { data: existente } = await supabaseAdmin
       .from('resenas')
       .select('id')
@@ -65,14 +59,9 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Ya has enviado una reseña para este maestro.' }, { status: 403 });
     }
 
-    // B. Moderación con BuhoAI
-    // Inicializamos con "motivos: []" y decision "PASS" por seguridad
     let aiResult = { decision: "PASS", is_toxic: false, motivos: [] }; 
 
-    console.log("📡 Enviando a analizar:", texto);
-    
     try {
-      // Nota: Asegúrate que la URL sea minúscula "/verificar-resena" para coincidir con Python
       const checkIA = await fetch("https://buhorater-backend.onrender.com/verificar-resena", {
         method: 'POST',
         headers: { 
@@ -82,31 +71,25 @@ export async function POST(request) {
         body: JSON.stringify({ texto })
       });
 
-      // Leer como texto primero para evitar errores de parseo si devuelve HTML
       const rawResponse = await checkIA.text();
       
       try {
         const parsed = JSON.parse(rawResponse);
         if (parsed) aiResult = parsed;
       } catch (jsonError) {
-        console.error("⚠️ La IA devolvió algo que no es JSON (probablemente error de servidor). Se permite el paso.");
+        // Se permite el paso si falla el JSON
       }
 
     } catch (networkError) {
-      console.error("❌ ERROR DE CONEXIÓN CON BUHOAI:", networkError);
-      // Si la IA está caída, dejamos pasar el comentario (Fail Open)
+      // Se permite el paso si falla la red
     }
 
-    // C. Decisión de Moderación (Híbrida: entiende formato nuevo y viejo)
     const isRejected = 
         (aiResult.decision && aiResult.decision.toUpperCase() === "REJECT") || 
         (aiResult.status && aiResult.status.toLowerCase() === "rejected") || 
         aiResult.is_toxic === true;
 
-    console.log("🧐 Resultado IA:", aiResult, " -> ¿Rechazado?:", isRejected);
-
     if (isRejected) {
-      // --- TRADUCTOR DE MOTIVOS PARA EL USUARIO ---
       const mensajesAmigables = {
         "acusacion_delictiva": "Tu reseña contiene acusaciones graves (acoso, delitos) que no podemos publicar por seguridad legal.",
         "vida_personal": "Por favor enfócate en lo académico. Evita comentar sobre la vida privada, familia o pareja del profesor.",
@@ -116,14 +99,12 @@ export async function POST(request) {
         "default": "Tu reseña no cumple con las normas de la comunidad de BuhoRater."
       };
 
-      // Tomamos el primer motivo que nos dio la IA, o usamos default
       const motivoDetectado = (aiResult.motivos && aiResult.motivos.length > 0) ? aiResult.motivos[0] : "default";
       const mensajeError = mensajesAmigables[motivoDetectado] || mensajesAmigables["default"];
 
       return NextResponse.json({ error: mensajeError }, { status: 400 });
     }
 
-    // D. Inserción final en Supabase
     const { error: insertError } = await supabaseAdmin.from('resenas').insert([{ 
       maestro_id, 
       texto, 
@@ -134,19 +115,16 @@ export async function POST(request) {
     }]);
 
     if (insertError) {
-      console.error("❌ Error insertando en Supabase:", insertError);
-      // Código 23505 es violación de unicidad en Postgres
       if (insertError.code === '23505') { 
         return NextResponse.json({ error: 'Ya has enviado una reseña para este maestro.' }, { status: 409 });
       }
       throw insertError;
     }
 
-    console.log("✅ Reseña guardada con éxito.");
     return NextResponse.json({ success: true });
 
   } catch (err) {
-    console.error("❌ Error interno general:", err);
+    console.error(err);
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }
