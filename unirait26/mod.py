@@ -24,6 +24,7 @@ def verificar_contenido_toxico(texto):
     
     TU NUEVA MISIÓN:
     Ser TOLERANTE con opiniones cortas, mal escritas o informales.
+    Se tolerante con criticas negativas al profesor.
     Ser ESTRICTO solo con amenazas, acoso, odio o spam basura.
 
     ✅ APROBAR (PASS) - TODO ESTO ESTÁ PERMITIDO:

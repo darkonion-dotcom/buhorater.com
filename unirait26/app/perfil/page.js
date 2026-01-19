@@ -18,7 +18,9 @@ function PerfilContent() {
   const [dificultad, setDificultad] = useState("3");
   const [texto, setTexto] = useState("");
 
-  const BUHO_DEFAULT = 'https://ui-avatars.com/api/?name=Buho&background=eff6ff&color=004689&size=200';
+  const getAvatarDefault = (nombre) => {
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre || 'Buho')}&background=eff6ff&color=004689&size=200&bold=true`;
+  };
 
   useEffect(() => {
     if (!maestroId) return;
@@ -120,7 +122,15 @@ function PerfilContent() {
 
       <div className="container1">
         <div className="profile-card1">
-          <img src={profe.foto_url || BUHO_DEFAULT} className="profile-img1" alt="profe" />
+          <img 
+            src={profe.foto_url || getAvatarDefault(profe.nombre)} 
+            className="profile-img1" 
+            alt="profe" 
+            onError={(e) => {
+              e.target.onerror = null; 
+              e.target.src = getAvatarDefault(profe.nombre);
+            }}
+          />
           <h1 className="h1-1">{profe.nombre}</h1>
           <div className="dept-text1">{profe.departamentos?.nombre || 'General'}</div>
           

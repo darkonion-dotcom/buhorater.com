@@ -16,7 +16,10 @@ export default function Home() {
 
   const fileInputRef = useRef(null);
   const tamanoPagina = 48;
-  const BUHO = 'https://ui-avatars.com/api/?name=Buho&background=eff6ff&color=004689&size=128';
+
+  const getAvatarDefault = (nombre) => {
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre || 'Buho')}&background=eff6ff&color=004689&size=128&bold=true`;
+  };
 
   useEffect(() => {
     const visto = localStorage.getItem('visto_bloqueo_unison');
@@ -63,7 +66,12 @@ export default function Home() {
       const lista = result.data || result;
 
       if (append) {
-        setProfesores(prev => [...prev, ...lista]);
+        // CORRECCIÓN AQUÍ: Filtramos duplicados antes de agregar
+        setProfesores(prev => {
+          const idsExistentes = new Set(prev.map(p => p.id));
+          const nuevosUnicos = lista.filter(p => !idsExistentes.has(p.id));
+          return [...prev, ...nuevosUnicos];
+        });
       } else {
         setProfesores(lista);
       }
@@ -206,7 +214,15 @@ export default function Home() {
 
             return (
               <div key={p.id} className="card">
-                <img src={p.foto_url || BUHO} onError={(e) => e.target.src = BUHO} loading="lazy" alt={p.nombre} />
+                <img 
+                  src={p.foto_url || getAvatarDefault(p.nombre)} 
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = getAvatarDefault(p.nombre);
+                  }} 
+                  loading="lazy" 
+                  alt={p.nombre} 
+                />
                 <div className="card-info">
                   {p.es_colaborador && <div className="badge-collab">Colaborador</div>}
                   <h3>{p.nombre}</h3>
@@ -222,7 +238,7 @@ export default function Home() {
         </div>
 
         {hasMore && (
-          <button id="btnCargarMas" onClick={() => cargarDatos(paginaActual, true)}>
+          <button id="btnCargarMas" onClick={() => cargarDatos(paginaActual, true)} style={{ display: 'block', width: '100%', padding: '15px', background: '#f5f5f5', border: 'none', color: '#666', fontSize: '1rem', cursor: 'pointer', borderRadius: '12px', marginTop: '20px', fontWeight: 'bold' }}>
             {loading ? "Cargando..." : "Cargar más resultados"}
           </button>
         )}
