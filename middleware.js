@@ -2,23 +2,16 @@ import { NextResponse } from 'next/server';
 
 export function middleware(req) {
   const cfCountry = req.headers.get('cf-ipcountry');
+  const vercelCountry = req.headers.get('x-vercel-ip-country');
+  const ip = req.headers.get('x-forwarded-for') || req.ip;
 
-  const country = cfCountry || 'MX';
+  console.log(`--- INTENTO DE ACCESO ---`);
+  console.log(`Ruta: ${req.nextUrl.pathname}`);
+  console.log(`IP detectada: ${ip}`);
+  console.log(`Pais Cloudflare (cf-ipcountry): ${cfCountry}`);
+  console.log(`Pais Vercel (x-vercel-ip-country): ${vercelCountry}`);
+  console.log(`-------------------------`);
 
-  console.log(`[Acceso] Pais detectado: ${cfCountry} | Ruta: ${req.nextUrl.pathname}`);
-
-  const isProtectedPath = 
-    req.nextUrl.pathname.startsWith('/api/resenas') || 
-    req.nextUrl.pathname === '/';
-
-  if (isProtectedPath) {
-    if (country !== 'MX' && country !== 'US') {
-      return NextResponse.json(
-        { error: 'Búho Rater solo está disponible en la región de México y EE.UU. 🇲🇽🇺🇸' },
-        { status: 403 }
-      );
-    }
-  }
 
   return NextResponse.next();
 }
