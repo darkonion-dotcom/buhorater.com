@@ -28,19 +28,17 @@ function PerfilContent() {
     cargarDatos();
   }, [maestroId]);
 
-  // LOGICA PARA EL CAPTCHA
   useEffect(() => {
     if (!loading && profe) {
       const timer = setTimeout(() => {
-        if (window.turnstile) {
+        const container = document.getElementById('captcha-box');
+        if (window.turnstile && container && container.innerHTML === "") {
           try {
             window.turnstile.render('#captcha-box', {
               sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
               theme: 'light',
             });
-          } catch (e) {
-            // Ya cargado
-          }
+          } catch (e) {}
         }
       }, 500);
       return () => clearTimeout(timer);
@@ -111,9 +109,8 @@ function PerfilContent() {
       });
 
       if (respuesta.ok) {
-        alert(" Tu comentario ha sido enviado y será analizado por IA antes de publicarse. La base de datos se actualiza cada hora.");
+        alert("¡Recibido! Tu reseña entró al búnker. Se publicará en la próxima actualización horaria.");
         setTexto("");
-        cargarDatos();
       } else {
         const resJson = await respuesta.json();
         throw new Error(resJson.error || "Error al publicar.");
@@ -229,7 +226,7 @@ function PerfilContent() {
             <textarea 
               value={texto} 
               onChange={(e) => setTexto(e.target.value)}
-              placeholder="¿Cómo es su clase? ¿Recomendable? ¿Algún consejo para futuros estudiantes? (No publicar informacion sensible o personal que no tenga que ver con su desempeño como profesor)"
+              placeholder="¿Cómo es su clase? ¿Recomendable? ¿Algún consejo para futuros estudiantes?"
             />
           </div>
           
@@ -250,7 +247,7 @@ function PerfilContent() {
           <div className="reviews-section-title1">Reseñas recientes</div>
           <div id="lista-resenas">
             {resenas.length > 0 ? resenas.map((r, i) => (
-              <div key={i} className="review-card1">
+              <div key={i} className="review-card1" style={{ overflowWrap: 'break-word', wordBreak: 'break-word', maxWidth: '100%' }}>
                 <div className="review-header1">
                   <div className="tags1">
                     <span className={`tag1 ${r.calidad >= 4 ? 'good' : r.calidad <= 2 ? 'bad' : ''}`}>{r.calidad} Calidad</span>
@@ -258,7 +255,7 @@ function PerfilContent() {
                   </div>
                   <span className="review-date1">{new Date(r.created_at).toLocaleDateString()}</span>
                 </div>
-                <p className="review-text1">{r.texto}</p>
+                <p className="review-text1" style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>{r.texto}</p>
               </div>
             )) : (
               <p style={{ textAlign: 'center', color: '#666', padding: '20px' }}>No hay reseñas aún.</p>
