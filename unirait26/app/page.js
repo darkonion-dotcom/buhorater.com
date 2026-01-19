@@ -261,7 +261,7 @@ export default function Home() {
             <button onClick={() => { setShowCoffee(false); localStorage.setItem('visto_bloqueo_unison', 'true'); }} style={{ position: 'absolute', right: '15px', top: '15px', border: 'none', background: 'none', fontSize: '1.2rem', color: '#999', cursor: 'pointer' }}>✕</button>
             <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>⚠️</div>
             <p style={{ margin: '0 0 20px 0', fontSize: '0.95rem', color: 'var(--text-main)', fontWeight: 500 }}>
-              Dejaré la página sin posibilidad de nuevas reseñas algunos días para tomarme el tiempo de hacer cambios en la seguridad. Muchas gracias a todos.
+             Por motivos de seguridad los promedios de los profesores se actualizan cada 12 horas. Muchas gracias a todos.
             </p>
             <div style={{ marginTop: '15px' }}>
               <span onClick={() => { setShowCoffee(false); localStorage.setItem('visto_bloqueo_unison', 'true'); }} style={{ color: '#999', textDecoration: 'underline', fontSize: '0.8rem', cursor: 'pointer' }}>Entendido</span>
