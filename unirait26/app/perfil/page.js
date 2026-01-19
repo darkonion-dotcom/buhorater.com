@@ -10,7 +10,7 @@ function PerfilContent() {
   const [resenas, setResenas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [statusMsg, setStatusMsg] = useState("");
+  const [statusMsg, setStatusMsg] = useState(""); 
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [visitorId, setVisitorId] = useState(null);
 
@@ -22,9 +22,15 @@ function PerfilContent() {
 
   useEffect(() => {
     if (!maestroId) return;
-    import('@fingerprintjs/fingerprintjs').then(fp => fp.load()).then(instance => instance.get()).then(result => {
-      setVisitorId(result.visitorId);
-    });
+    const cargarHuella = async () => {
+      try {
+        const FingerprintJS = await import('@fingerprintjs/fingerprintjs');
+        const fp = await FingerprintJS.load();
+        const result = await fp.get();
+        setVisitorId(result.visitorId);
+      } catch (e) { setVisitorId("unknown"); }
+    };
+    cargarHuella();
     cargarDatos();
   }, [maestroId]);
 
@@ -54,47 +60,20 @@ function PerfilContent() {
       const profeData = await resProfe.json();
       const resenasData = await resResenas.json();
       setProfe(profeData);
-      setResenas(resenasData || []);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
+      setResenas(Array.isArray(resenasData) ? resenasData : []);
+    } catch (e) { console.error(e); } finally { setLoading(false); }
   };
 
   const enviarResena = async () => {
-    if (texto.trim().length < 15) {
-      alert("Tu reseña es muy corta (mínimo 15 caracteres).");
-      return;
-    }
-
+    if (texto.trim().length < 15) { alert("Reseña muy corta."); return; }
     let captchaResponse = null;
-    try {
-      captchaResponse = window.turnstile.getResponse();
-    } catch (e) {}
-
-    if (!captchaResponse) {
-      alert("Por favor verifica el captcha.");
-      return;
-    }
+    try { captchaResponse = window.turnstile.getResponse(); } catch (e) {}
+    if (!captchaResponse) { alert("Verifica el captcha."); return; }
 
     setSubmitting(true);
-    setStatusMsg(" BuhoAI está analizando tu comentario...");
+    setStatusMsg(" Analizando por BuhoAI..."); 
 
     try {
-      const checkMod = await fetch("/api/verificar", {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ texto: texto })
-      });
-
-      if (!checkMod.ok) {
-        const errData = await checkMod.json().catch(() => ({}));
-        throw new Error(errData.error || "Error en el sistema de moderación.");
-      }
-
-      setStatusMsg(" Publicando...");
-
       const respuesta = await fetch('/api/resenas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -109,8 +88,9 @@ function PerfilContent() {
       });
 
       if (respuesta.ok) {
-        alert("¡Recibido! Tu reseña entró al búnker. Se publicará en la próxima actualización horaria.");
+        alert("¡Recibido! Tu reseña entró al búnker.");
         setTexto("");
+        cargarDatos();
       } else {
         const resJson = await respuesta.json();
         throw new Error(resJson.error || "Error al publicar.");
@@ -140,50 +120,33 @@ function PerfilContent() {
 
       <div className="container1">
         <div className="profile-card1">
-          <img 
-            src={(profe.foto_url && profe.foto_url !== "null") ? profe.foto_url : BUHO_DEFAULT} 
-            className="profile-img1" 
-            alt={profe.nombre}
-            onError={(e) => e.target.src = BUHO_DEFAULT}
-          />
-          <h1 className="h1-1">
-            {profe.nombre} {profe.es_colaborador && <span className="badge-collab1">Colaborador</span>}
-          </h1>
+          <img src={profe.foto_url || BUHO_DEFAULT} className="profile-img1" alt="profe" />
+          <h1 className="h1-1">{profe.nombre}</h1>
           <div className="dept-text1">{profe.departamentos?.nombre || 'General'}</div>
           
           <div className="stats-trigger1" onClick={() => setShowBreakdown(!showBreakdown)} style={{ cursor: 'pointer' }}>
             <div className="stats-grid1">
-              <div className="stat-item1">
-                <span className="stat-val1">{profe.promedio_calidad?.toFixed(1) || '-'}</span>
-                <span className="stat-label1">Calidad</span>
-              </div>
-              <div className="stat-item1">
-                <span className="stat-val1">{profe.promedio_dificultad?.toFixed(1) || '-'}</span>
-                <span className="stat-label1">Dificultad</span>
-              </div>
-              <div className="stat-item1">
-                <span className="stat-val1">{profe.total_resenas || 0}</span>
-                <span className="stat-label1">Reseñas</span>
-              </div>
+              <div className="stat-item1"><span className="stat-val1">{profe.promedio_calidad?.toFixed(1) || '-'}</span><span className="stat-label1">Calidad</span></div>
+              <div className="stat-item1"><span className="stat-val1">{profe.promedio_dificultad?.toFixed(1) || '-'}</span><span className="stat-label1">Dificultad</span></div>
+              <div className="stat-item1"><span className="stat-val1">{profe.total_resenas || 0}</span><span className="stat-label1">Reseñas</span></div>
             </div>
             <div style={{ textAlign: 'center', fontSize: '0.8rem', color: 'var(--primary)', marginTop: '10px' }}>
               {showBreakdown ? '▲ Ocultar desglose' : '▼ Ver desglose'}
             </div>
           </div>
+
           {showBreakdown && (
             <div className="breakdown-wrapper1 open" style={{ maxHeight: '500px', marginTop: '15px' }}>
               <div className="breakdown-content1">
                 {[5, 4, 3, 2, 1].map(estrellas => {
-                  const count = resenas.filter(r => r.calidad === estrellas).length;
+                  const count = resenas.filter(r => Number(r.calidad) === estrellas).length;
                   const total = resenas.length;
                   const percentage = total > 0 ? (count / total) * 100 : 0;
                   const colorClass = estrellas >= 4 ? 'fill-green1' : estrellas === 3 ? 'fill-yellow1' : 'fill-red1';
                   return (
                     <div key={estrellas} className="bar-row1">
                       <span className="bar-label1">{estrellas} ★</span>
-                      <div className="bar-track1">
-                        <div className={`bar-fill1 ${colorClass}`} style={{ width: `${percentage}%` }}></div>
-                      </div>
+                      <div className="bar-track1"><div className={`bar-fill1 ${colorClass}`} style={{ width: `${percentage}%` }}></div></div>
                       <span className="bar-count1">({count})</span>
                     </div>
                   );
@@ -191,10 +154,6 @@ function PerfilContent() {
               </div>
             </div>
           )}
-
-          <p style={{fontSize: '0.75rem', color: '#888', textAlign: 'center', marginTop: '10px'}}>
-            * Los promedios se actualizan cada hora.
-          </p>
         </div>
 
         <div className="form-card1">
@@ -223,44 +182,37 @@ function PerfilContent() {
           </div>
           <div className="input-group1">
             <label className="label1">Comentario</label>
-            <textarea 
-              value={texto} 
-              onChange={(e) => setTexto(e.target.value)}
-              placeholder="¿Cómo es su clase? ¿Recomendable? ¿Algún consejo para futuros estudiantes?"
-            />
+            <textarea value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="¿Cómo es su clase?..." />
           </div>
           
-          <div id="captcha-box" className="cf-turnstile"></div>
+          <div id="captcha-box"></div>
           
-          <button onClick={enviarResena} className="btn-submit1" disabled={submitting}>
+          <button onClick={enviarResena} className="btn-submit1" disabled={submitting || !visitorId}>
             {submitting ? "Procesando..." : "Publicar Reseña"}
           </button>
           
           {submitting && (
-            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '10px', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '10px', textAlign: 'center', fontWeight: 'bold' }}>
               {statusMsg}
             </p>
           )}
         </div>
 
-        <div>
-          <div className="reviews-section-title1">Reseñas recientes</div>
-          <div id="lista-resenas">
-            {resenas.length > 0 ? resenas.map((r, i) => (
-              <div key={i} className="review-card1" style={{ overflowWrap: 'break-word', wordBreak: 'break-word', maxWidth: '100%' }}>
-                <div className="review-header1">
-                  <div className="tags1">
-                    <span className={`tag1 ${r.calidad >= 4 ? 'good' : r.calidad <= 2 ? 'bad' : ''}`}>{r.calidad} Calidad</span>
-                    <span className={`tag1 ${r.dificultad >= 4 ? 'bad' : r.dificultad <= 2 ? 'good' : ''}`}>{r.dificultad} Dificultad</span>
-                  </div>
-                  <span className="review-date1">{new Date(r.created_at).toLocaleDateString()}</span>
+        <div id="lista-resenas">
+          {resenas.map((r, i) => (
+            <div key={i} className="review-card1">
+              <div className="review-header1">
+                <div className="tags1">
+                  <span className={`tag1 ${r.calidad >= 4 ? 'good' : r.calidad <= 2 ? 'bad' : ''}`}>{r.calidad} Calidad</span>
+                  <span className={`tag1 ${r.dificultad >= 4 ? 'bad' : r.dificultad <= 2 ? 'good' : ''}`}>{r.dificultad} Dificultad</span>
                 </div>
-                <p className="review-text1" style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>{r.texto}</p>
+                <span className="review-date1">{new Date(r.created_at).toLocaleDateString()}</span>
               </div>
-            )) : (
-              <p style={{ textAlign: 'center', color: '#666', padding: '20px' }}>No hay reseñas aún.</p>
-            )}
-          </div>
+              <p className="review-text1" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                {r.texto}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
