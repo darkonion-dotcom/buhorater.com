@@ -56,6 +56,9 @@ unirait26/
 │   ├── layout.js            # Main application wrapper
 │   └── page.js              # Homepage entry point
 ├── public/                  # Static assets
+├── middleware.js            # Request interception for Geo-Blocking
+├── next.config.js           # Next.js configuration
+└── package.json             # Dependencies and scripts
 ```
 Security Implementation Details
 Middleware Configuration
@@ -68,6 +71,3 @@ License
 This project is licensed under the MIT License.
 
 Developed by a Semiconductor Engineering student at the University of Sonora.
-├── middleware.js            # Request interception for Geo-Blocking
-├── next.config.js           # Next.js configuration
-└── package.json             # Dependencies and scripts
