@@ -1,14 +1,16 @@
 import { NextResponse } from 'next/server';
 
 export function middleware(req) {
-  const country = req.headers.get('cf-ipcountry') || req.geo?.country || 'MX';
 
+  const cfCountry = req.headers.get('cf-ipcountry');
+
+  const country = cfCountry || 'MX';
   const isProtectedPath = 
     req.nextUrl.pathname.startsWith('/api/resenas') || 
     req.nextUrl.pathname === '/';
 
   if (isProtectedPath) {
-    if (country && country !== 'MX') {
+    if (country !== 'MX') {
       return NextResponse.json(
         { error: 'Búho Rater solo está disponible para estudiantes en México 🇲🇽' },
         { status: 403 }
