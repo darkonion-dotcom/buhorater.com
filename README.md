@@ -1,81 +1,73 @@
+# Buho Rater
 
-# 🦉 Búho Rater
+Buho Rater is a specialized web platform developed for the student community of the **University of Sonora (Unison)**. It enables students to evaluate professor performance, visualize aggregate statistics, and access academic information securely and anonymously.
 
-**Búho Rater** is a web platform created by and for students of the **University of Sonora (Unison)**. Its goal is to allow the student community to rate, review, and check professor performance anonymously, quickly, and securely.
+**Official URL:** https://buhorater.com
 
-🔗 **Official Site:** [buhorater.com](https://buhorater.com)
+## Project Overview
 
----
+The project addresses the need for transparent academic feedback. Unlike static directories, Buho Rater utilizes a modern, multi-layered architecture to ensure data integrity, prevent spam, and provide real-time sentiment analysis on reviews.
 
-## 🚀 Features
+## Key Features
 
-* **🔍 Instant Search:** Find professors by name or department in real-time.
-* **⭐ Rating System:** Evaluate "Quality" and "Difficulty" on a scale of 1 to 5.
-* **💬 Anonymous Reviews:** Comments are protected using **FingerprintJS** (preventing spam without requiring user registration).
-* **⚡ High Performance:** Images are optimized and auto-cropped in the cloud for ultra-fast loading.
-* **📱 Responsive Design:** Works perfectly on mobile devices and desktops.
+### 1. AI-Powered Moderation
+The platform integrates a custom Python-based Neural Network (hosted on Render) that analyzes every review in real-time. This system:
+* Detects and flags toxic or offensive content automatically.
+* Performs sentiment analysis to categorize feedback.
+* Ensures constructive criticism without manual intervention.
 
----
+### 2. Multi-Layered Security
+Security is a core pillar of the V2 architecture:
+* **Geo-Fencing:** Access is restricted to Mexico via Cloudflare headers and Next.js Middleware to prevent foreign bot attacks.
+* **Bot Protection:** Integrated Cloudflare Turnstile (Smart Captcha) to distinguish human users from automated scripts.
+* **Fingerprinting:** Uses browser fingerprinting to limit review frequency per device without requiring user registration.
+* **SSL/TLS Encryption:** Full Strict SSL enforcement between Client, Cloudflare, and Vercel.
 
-## 🛠️ Tech Stack
+### 3. High-Performance Architecture
+* **Serverless Frontend:** Built with Next.js 14 (App Router) for static generation and server-side rendering.
+* **Hybrid Backend:** Combines Vercel Serverless Functions for I/O operations and a dedicated Python Flask service for heavy AI processing.
+* **Cron Jobs:** Automated background tasks update professor statistics (averages, difficulty) daily to reduce database load during peak traffic.
 
-This project is built on a modern **Serverless** architecture to ensure high scalability and low (or zero) maintenance costs.
+## Technical Stack
 
-| Component | Technology | Description |
+This project uses a decoupled architecture to maximize scalability and minimize costs.
+
+| Component | Technology | Purpose |
 | :--- | :--- | :--- |
-| **Frontend** | HTML5, CSS3, JS | Vanilla JavaScript (No heavy frameworks). |
-| **Backend** | Python (Flask) | API service for parsing PDF schedules using `pdfplumber`. |
-| **Backend Hosting** | Render | Cloud hosting for the Python backend service. |
-| **Database** | Supabase | PostgreSQL in the cloud for real-time data. |
-| **Storage** | Cloudinary | Hosting and real-time image optimization. |
-| **Security** | FingerprintJS | Unique device identification to limit voting. |
-| **Frontend Hosting** | Vercel | Continuous deployment and custom domain. |
+| **Frontend Framework** | Next.js 14 | React-based framework for routing, UI, and API routes. |
+| **AI Engine** | Python (Flask) | Runs the sentiment analysis model and natural language processing. |
+| **AI Hosting** | Render | Dedicated hosting for the Python service (prevents Vercel timeouts). |
+| **Database** | Supabase | PostgreSQL database with Row Level Security (RLS). |
+| **CDN & DNS** | Cloudflare | DNS management, DDoS protection, and Geo-IP handling. |
+| **Deployment** | Vercel | CI/CD pipeline and frontend hosting. |
+| **Validation** | Zod / TypeScript | Runtime schema validation for data integrity. |
 
----
+## Project Structure
 
-## 📂 Project Structure
+The project follows a standard Next.js App Router structure:
 
 ```text
 unirait26/
-├── index.html        # Main page (Search engine & Professor list)
-├── Perfil.html       # Individual professor profile & Review form
-├── Horario.html      # Class schedule visualization
-├── Politicas.html    # Privacy policy and terms of use
-├── dictionary.html   # Full list of teachers.
-├── tool.py           # Python utility script
-└── styles.css        # Global styles
+├── app/
+│   ├── api/                 # Serverless API routes (Internal API)
+│   │   ├── cron/            # Scheduled tasks for stats updates
+│   │   └── resenas/         # Review handling endpoints
+│   ├── components/          # Reusable React components (Search, Cards)
+│   ├── layout.js            # Main application wrapper
+│   └── page.js              # Homepage entry point
+├── public/                  # Static assets
+├── middleware.js            # Request interception for Geo-Blocking
+├── next.config.js           # Next.js configuration
+└── package.json             # Dependencies and scripts
 ```
----
-## 🛡️ Security & Optimization
+Security Implementation Details
+Middleware Configuration
+The middleware.js file handles traffic filtering at the edge. It prioritizes the cf-ipcountry header provided by Cloudflare to validate the user's origin.
 
-### Image Handling
+CORS & Communication
+Communication between the Next.js frontend and the Python AI Backend is secured via strict CORS policies and internal API keys, preventing unauthorized use of the analysis engine.
 
-Originally, images were loaded directly from academic servers, causing slow load times. A migration to **Cloudinary** was implemented, resulting in:
+License
+This project is licensed under the MIT License.
 
-* **80% reduction** in image file size.
-* Automatic Face Detection for cropping.
-* Automatic **WebP** format delivery for modern browsers.
-
-### Spam Prevention
-
-We do not use user accounts to ensure total anonymity. Instead, we use **FingerprintJS** to generate a unique ID based on the visitor's device.
-
-* **Limit:** Restricts users to 1 review per professor per device.
-
----
-
-## ☕ Support the Project
-
-This is a non-profit student project. Domain and maintenance costs come out of my own pocket. If this tool saved you from a bad class or helped you find the best mentor, **buy me a coffee!**
-
-<a href="https://www.buymeacoffee.com/starcatunison">
-<img src="https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee" />
-</a>
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License**. Feel free to use the code to learn.
-
-**Developed with 💙 by a Semiconductor Engineering student @ Unison.**
+Developed by a Semiconductor Engineering student at the University of Sonora.
