@@ -90,7 +90,7 @@ function PerfilContent() {
       });
 
       if (respuesta.ok) {
-        alert("¡Recibido! Tu reseña entró al búnker.");
+        alert("¡Recibido! Tu reseña fue publicada correctamente.");
         setTexto("");
         cargarDatos();
       } else {
@@ -143,6 +143,9 @@ function PerfilContent() {
             <div style={{ textAlign: 'center', fontSize: '0.8rem', color: 'var(--primary)', marginTop: '10px' }}>
               {showBreakdown ? '▲ Ocultar desglose' : '▼ Ver desglose'}
             </div>
+            <p style={{ textAlign: 'center', fontSize: '0.7rem', color: '#999', margin: '5px 0 0 0' }}>
+               Los promedios se actualizan cada 12 horas por seguridad.
+            </p>
           </div>
 
           {showBreakdown && (
