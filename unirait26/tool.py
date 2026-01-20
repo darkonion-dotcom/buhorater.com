@@ -4,7 +4,12 @@ from flask_cors import CORS
 from mod import obtener_pais_ip, verificar_contenido_toxico
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": ["https://www.buhorater.com", "http://localhost:3000", "https://buhoratercomcom.vercel.app", "https://unirait26.vercel.app"]}})
+CORS(app, resources={r"/*": {"origins": [
+    "https://www.buhorater.com", 
+    "http://localhost:3000", 
+    "https://buhoratercomcom.vercel.app", 
+    "https://unirait26.vercel.app"
+]}})
 
 INTERNAL_API_KEY = os.environ.get("INTERNAL_API_KEY")
 
@@ -17,19 +22,22 @@ def verificar_resena():
     key = request.headers.get('x-api-key')
     if key != INTERNAL_API_KEY:
         return jsonify({"decision": "REJECT", "error": "Unauthorized"}), 401
-
-    ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0]
-    pais = obtener_pais_ip(ip)
+    pais = obtener_pais_ip(request.headers)
     
-    # out  mx
-    #if pais and pais != "MX":
-       #return jsonify({"decision": "REJECT", "motivos": ["ubicacion_no_permitida"]}), 403
+    print(f"Acceso desde: {pais}") #
+    if pais not in ["MX", "US"]:
+       print(f"Bloqueado acceso desde: {pais}")
+       return jsonify({
+           "decision": "REJECT", 
+           "motivos": [f"Ubicación no permitida ({pais}). Solo MX/US."]
+       }), 403
+
+    # 3. Obtener texto
     data = request.json
     texto = data.get("texto", "")
     
     if len(texto) < 5:
          return jsonify({"decision": "REJECT", "motivos": ["muy_corto"]}), 400
-
     es_toxico, motivos = verificar_contenido_toxico(texto)
 
     if es_toxico:
@@ -38,8 +46,6 @@ def verificar_resena():
             "is_toxic": True,
             "motivos": motivos
         }), 200
-
-    
     return jsonify({
         "decision": "PASS",
         "is_toxic": False,
