@@ -3,27 +3,33 @@ import requests
 import json
 
 def obtener_pais_ip(request_headers):
-    pais = request_headers.get('Cf-Ipcountry') or request_headers.get('X-Vercel-Ip-Country')
+    
+    pais = (
+        request_headers.get('Cf-Ipcountry') or 
+        request_headers.get('cf-ipcountry') or 
+        request_headers.get('X-Vercel-Ip-Country') or 
+        request_headers.get('x-vercel-ip-country')
+    )
     
     if pais:
         return pais.upper()
         
-    return "MX"  
+    return "MX"
 
 def verificar_contenido_toxico(texto):
     api_key = os.environ.get("OPENAI_API_KEY")
+    
     if not api_key:
+        print("❌ ERROR MODERACIÓN: No se encontró la variable OPENAI_API_KEY.")
         return False, []
 
     system_prompt = """
-      Eres el Moderador de Seguridad de "BuhoRater" plataforma de reseñas o evaluaciones académicas para la UNIVERSIDAD DE SONORA hermosillo sonora MX.
+    Eres el Moderador de Seguridad de "BuhoRater" plataforma de reseñas o evaluaciones académicas para la UNIVERSIDAD DE SONORA hermosillo sonora MX.
     TU NUEVA MISIÓN:
     
     Ser TOLERANTE con opiniones cortas, mal escritas o informales.
     Se tolerante con criticas negativas al profesor.
     Ser ESTRICTO solo con amenazas, acoso, odio o spam basura.
-
-
 
     ✅ APROBAR (PASS) - TODO ESTO ESTÁ PERMITIDO:
     1. Opiniones Simples/Cortas: "Es buen profe", "Recomendado", "Es chido", "No me gustó", "Es bueno nada mas", "Pasable".
@@ -56,14 +62,21 @@ def verificar_contenido_toxico(texto):
     
     try:
         response = requests.post(url, headers=headers, json=payload, timeout=8)
-        if response.status_code != 200: return False, [] 
+        
+        if response.status_code != 200: 
+            print(f"ERROR AI ({response.status_code}): {response.text}")
+            return False, [] 
 
         data = response.json()
         resultado = json.loads(data['choices'][0]['message']['content'])
+        
+        print(f"Moderación: {resultado.get('decision')} | Texto: {texto[:30]}...")
         
         if resultado.get("decision") == "REJECT":
             return True, resultado.get("motivos", [])
         
         return False, []
-    except Exception:
+
+    except Exception as e:
+        print(f"ERROR CRÍTICO EN MODERACIÓN: {str(e)}")
         return False, []
