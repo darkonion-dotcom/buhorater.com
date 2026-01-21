@@ -39,15 +39,16 @@ export async function POST(request) {
   try {
     const country = request.headers.get('x-vercel-ip-country');
     
-    if (country && country !== 'MX') {
+    if (country && country !== 'MX' && country !== 'US') {
       return NextResponse.json({ 
-        error: `Lo sentimos, BuhoRater solo está disponible en México. (Detectado: ${country})` 
+        error: `Lo sentimos, BuhoRater solo está disponible en México y EE.UU. (Detectado: ${country})` 
       }, { status: 403 });
     }
 
     const body = await request.json();
     const { maestro_id, texto, calidad, dificultad, device_id } = body;
 
+    // 2. EVITAR DUPLICADOS
     const { data: existente } = await supabaseAdmin
       .from('resenas')
       .select('id')
@@ -66,7 +67,7 @@ export async function POST(request) {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'x-api-key': process.env.INTERNAL_API_KEY ,
+          'x-api-key': process.env.INTERNAL_API_KEY,
         },
         body: JSON.stringify({ texto })
       });
@@ -77,11 +78,11 @@ export async function POST(request) {
         const parsed = JSON.parse(rawResponse);
         if (parsed) aiResult = parsed;
       } catch (jsonError) {
-        // Se permite el paso si falla el JSON
+        console.error("Error al parsear JSON de la IA");
       }
 
     } catch (networkError) {
-      // Se permite el paso si falla la red
+      console.error("Error de red con la IA");
     }
 
     const isRejected = 
@@ -91,12 +92,12 @@ export async function POST(request) {
 
     if (isRejected) {
       const mensajesAmigables = {
-        "acusacion_delictiva": "Tu reseña contiene acusaciones graves (acoso, delitos) que no podemos publicar por seguridad legal.",
-        "vida_personal": "Por favor enfócate en lo académico. Evita comentar sobre la vida privada, familia o pareja del profesor.",
-        "insulto_grave": "Se detectaron insultos ofensivos o lenguaje de odio. Mantengamos el respeto.",
-        "ataque_identidad": "No permitimos ataques sobre la apariencia física, orientación sexual o identidad del profesor.",
-        "spam": "Tu comentario parece spam o no tiene contenido relevante.",
-        "default": "Tu reseña no cumple con las normas de la comunidad de BuhoRater."
+        "acusacion_delictiva": "Tu reseña contiene acusaciones que requieren canales oficiales. No podemos publicarla por seguridad legal.",
+        "vida_personal": "Enfoquémonos en lo académico. Evita comentar sobre la vida privada del profesor.",
+        "insulto_grave": "Se detectó lenguaje ofensivo. Mantengamos el respeto en la comunidad.",
+        "ataque_identidad": "No permitimos ataques sobre la apariencia o identidad del profesor.",
+        "spam": "Tu comentario parece spam o texto sin sentido.",
+        "default": "Tu reseña no cumple con las normas de moderación de Búho Rater."
       };
 
       const motivoDetectado = (aiResult.motivos && aiResult.motivos.length > 0) ? aiResult.motivos[0] : "default";
@@ -104,7 +105,6 @@ export async function POST(request) {
 
       return NextResponse.json({ error: mensajeError }, { status: 400 });
     }
-
     const { error: insertError } = await supabaseAdmin.from('resenas').insert([{ 
       maestro_id, 
       texto, 
@@ -124,7 +124,7 @@ export async function POST(request) {
     return NextResponse.json({ success: true });
 
   } catch (err) {
-    console.error(err);
+    console.error("Error en POST reseñas:", err);
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }

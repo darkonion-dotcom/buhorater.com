@@ -4,6 +4,7 @@ from flask_cors import CORS
 from mod import obtener_pais_ip, verificar_contenido_toxico
 
 app = Flask(__name__)
+
 CORS(app, resources={r"/*": {"origins": [
     "https://www.buhorater.com", 
     "http://localhost:3000", 
