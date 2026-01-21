@@ -1,9 +1,28 @@
 import Script from 'next/script';
 import './global.css';
+
 export const metadata = {
-  title: 'Búho Rater - UNISON',
-  description: 'Califica a tus profesores de la Universidad de Sonora.',
+  title: 'BuhoRater - Califica a tus maestros de la UNISON',
+  description: 'La plataforma oficial para ver reseñas, promedios y opiniones reales de profesores de la Universidad de Sonora. ¡Arma tu horario sin sorpresas!',
+  keywords: ['UNISON', 'BuhoRater', 'Profesores Unison', 'Maestros', 'Hermosillo', 'Calificaciones', 'Reseñas', 'Sonora'],
+  openGraph: {
+    title: 'BuhoRater - La verdad sobre tus clases',
+    description: 'Descubre qué maestros son barco y cuáles no. Opiniones 100% anónimas de estudiantes.',
+    url: 'https://www.buhorater.com',
+    siteName: 'BuhoRater',
+    images: [
+      {
+        url: 'https://res.cloudinary.com/dyqoqobg2/image/upload/v1767981066/Geometric_owl_logo_with_modern_tech_twist_wcvitd.png',
+        width: 800,
+        height: 600,
+        alt: 'Logo BuhoRater',
+      },
+    ],
+    locale: 'es_MX',
+    type: 'website',
+  },
 };
+
 export default function RootLayout({ children }) {
   return (
     <html lang="es">
