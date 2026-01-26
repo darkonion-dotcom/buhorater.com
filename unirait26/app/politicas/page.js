@@ -22,7 +22,7 @@ export default function Politicas() {
         <div className={`nav-items2 ${menuActive ? 'active' : ''}`} id="navMenu2">
           <a href="/dictionary" className="nav-link2">Directorio</a>
           <a href="/politicas" className="nav-link2" style={{ color: '#004689' }}>Políticas</a>
-          <a href="mailto:juanfernandoincognito@gmail.com" className="nav-link2">Contacto</a>
+          <a href="mailto:hola" className="nav-link2">Contacto</a>
           <a href="https://forms.gle/zycskRMqps41jPSM9" className="nav-link2">Reportar</a>
           <a href="https://www.buymeacoffee.com/starcatunison" target="_blank" className="nav-link2">Donar</a>
         </div>
@@ -37,7 +37,7 @@ export default function Politicas() {
 
         <h2 className="h2-2">1. Naturaleza de la Plataforma</h2>
         <p className="p-2">
-          Búho Rater es una herramienta independiente y <strong>no tiene afiliación oficial con la Universidad de Sonora (UNISON).</strong> La pagina no la creé con la intencion de afectar a los maestros,al contrario,existen maestros a los que no se les reconoce por su nivel academico,como fue el caso de el profesor que estuvo en huelga de hambre. Les pido a los maestros que tal vez lean esto,que no sean peones de un sistema que esclaviza al honrado,al que merece,y favorece al indigno al que ensucia una labor honrada como es la de ser maestro. Esta pagina no es mas que el resultado de una serie de problemas que no sean tratado. No perpetuen mas el no afrontar la situacion. Si tienen algun problema comuniquense directamente conmigo,yo sabre como solucionarlo.
+          BuhoRater es una iniciativa 100% independiente y <strong>sin afiliación oficial con la Universidad de Sonora (UNISON)</strong>. Esta plataforma no fue creada para atacar, sino para <strong>transparentar la excelencia académica</strong> y dar el reconocimiento que merecen aquellos docentes que honran su labor, un reconocimiento que muchas veces el sistema institucional olvida. No somos el enemigo, sino el reflejo de una necesidad estudiantil ante problemas que no han sido atendidos. Si usted es docente y tiene alguna inquietud, sepa que estamos abiertos al diálogo para resolver cualquier situación de manera justa; nuestro fin no es el conflicto, sino la mejora educativa.
         </p>
 
         <h2 className="h2-2">2. Privacidad y Datos</h2>
