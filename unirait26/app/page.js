@@ -10,6 +10,7 @@ export default function Home() {
   const [menuActive, setMenuActive] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
   const [showCoffee, setShowCoffee] = useState(false);
+  const [showInsta, setShowInsta] = useState(true);
   const [filtroDepto, setFiltroDepto] = useState("todos");
   const [filtroOrden, setFiltroOrden] = useState("nombre");
   const [busqueda, setBusqueda] = useState("");
@@ -17,13 +18,11 @@ export default function Home() {
   const fileInputRef = useRef(null);
   const tamanoPagina = 48;
 
-  // MODO SEGURO: Usamos siempre el avatar por defecto para evitar problemas legales de imagen
   const getAvatarDefault = (nombre) => {
     return `https://res.cloudinary.com/dyqoqobg2/image/upload/v1767981066/Geometric_owl_logo_with_modern_tech_twist_wcvitd.png`;
   };
 
   useEffect(() => {
-    // CAMBIO IMPORTANTE: Nueva llave para obligar a todos a aceptar los nuevos términos legales
     const visto = localStorage.getItem('visto_aviso_legal_const_v1');
     if (!visto) setShowCoffee(true);
     
@@ -42,7 +41,6 @@ export default function Home() {
 
   const actualizarContador = async () => {
     try {
-      // Truco Anti-Caché: Agregamos ?t=tiempo para que Cloudflare intente traer el dato fresco
       const res = await fetch(`/api/contador?t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       if (data.count) setContador(data.count.toLocaleString() + " reseñas");
@@ -112,7 +110,6 @@ export default function Home() {
     }
   };
 
-  // Función para cerrar el aviso legal y guardar la preferencia
   const aceptarTerminos = () => {
     setShowCoffee(false);
     localStorage.setItem('visto_aviso_legal_const_v1', 'true');
@@ -224,7 +221,6 @@ export default function Home() {
             return (
               <div key={p.id} className="card">
                 <img 
-                  // MODO SEGURO ACTIVO: Ignoramos p.foto_url
                   src={getAvatarDefault(p.nombre)} 
                   onError={(e) => {
                     e.target.onerror = null;
@@ -310,6 +306,27 @@ export default function Home() {
                 Entendido y Acepto
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showInsta && (
+        <div className="insta-toast">
+          <div className="insta-content">
+            <span className="insta-icon">📸</span>
+            <div className="insta-text">
+              <p>Síguenos en Instagram para actualizaciones y noticias.</p>
+            </div>
+          </div>
+          <div className="insta-actions">
+            <a 
+              href="https://instagram.com/buhoratercom" 
+              target="_blank" 
+              className="insta-btn"
+            >
+              Seguir
+            </a>
+            <button onClick={() => setShowInsta(false)} className="insta-close">✕</button>
           </div>
         </div>
       )}

@@ -54,16 +54,14 @@ input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px v
 
 /*
    1: PERFIL */
-/* 2. FIX OVERFLOW: Forzar salto de línea en textos largos */
 .review-text1 {
   font-size: 0.95rem;
   line-height: 1.5;
   color: #334155;
   margin: 0;
-  /* Estas 3 líneas son el secreto técnico */
-  white-space: pre-wrap;      /* Respeta los saltos de línea del usuario */
-  word-wrap: break-word;      /* Corta palabras largas */
-  overflow-wrap: break-word;  /* Estándar moderno para evitar desbordamiento */
+  white-space: pre-wrap;
+  word-wrap: break-word;     
+  overflow-wrap: break-word;  
 }
 
 .review-card1 {
@@ -72,7 +70,6 @@ input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px v
   border-radius: 12px;
   border: 1px solid #e2e8f0;
   margin-bottom: 15px;
-  /* Asegura que la tarjeta no crezca infinito hacia los lados */
   max-width: 100%;
   overflow: hidden; 
 }
@@ -499,3 +496,86 @@ input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px v
 
 .main-footer3 { width: 100%; background-color: #f3f4f6; border-top: 1px solid #789be0; padding: 30px 20px; text-align: center; margin-top: auto; box-sizing: border-box; }
 .footer-link3 { text-decoration: none; color: #6b7280; font-size: 0.9rem; margin: 0 10px; }
+.insta-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px; 
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  z-index: 1000;
+  border: 1px solid #eee;
+  animation: slideUp 0.5s ease-out;
+  max-width: 90%;
+  width: 350px;
+}
+
+.insta-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.insta-icon {
+  font-size: 24px;
+}
+
+.insta-text strong {
+  display: block;
+  font-size: 0.95rem;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.insta-text p {
+  font-size: 0.8rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.insta-btn {
+  background: linear-gradient(45deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.85rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.insta-close {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0 5px;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@media (max-width: 600px) {
+  .insta-toast {
+    left: 20px;
+    right: 20px;
+    width: auto;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .insta-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+  }
+}
