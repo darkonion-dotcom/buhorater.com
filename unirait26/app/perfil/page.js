@@ -17,9 +17,8 @@ function PerfilContent() {
   const [calidad, setCalidad] = useState("5");
   const [dificultad, setDificultad] = useState("3");
   const [texto, setTexto] = useState("");
-
   const getAvatarDefault = (nombre) => {
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre || 'Buho')}&background=eff6ff&color=004689&size=200&bold=true`;
+    return `https://res.cloudinary.com/dyqoqobg2/image/upload/v1767981066/Geometric_owl_logo_with_modern_tech_twist_wcvitd.png`;
   };
 
   useEffect(() => {
@@ -43,7 +42,7 @@ function PerfilContent() {
         if (window.turnstile && container && container.innerHTML === "") {
           try {
             window.turnstile.render('#captcha-box', {
-              sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+              sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY, 
               theme: 'light',
             });
           } catch (e) {}
@@ -123,7 +122,7 @@ function PerfilContent() {
       <div className="container1">
         <div className="profile-card1">
           <img 
-            src={profe.foto_url || getAvatarDefault(profe.nombre)} 
+            src={getAvatarDefault(profe.nombre)} 
             className="profile-img1" 
             alt="profe" 
             onError={(e) => {

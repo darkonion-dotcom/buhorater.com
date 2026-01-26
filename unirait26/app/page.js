@@ -17,13 +17,16 @@ export default function Home() {
   const fileInputRef = useRef(null);
   const tamanoPagina = 48;
 
+  // MODO SEGURO: Usamos siempre el avatar por defecto para evitar problemas legales de imagen
   const getAvatarDefault = (nombre) => {
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre || 'Buho')}&background=eff6ff&color=004689&size=128&bold=true`;
+    return `https://res.cloudinary.com/dyqoqobg2/image/upload/v1767981066/Geometric_owl_logo_with_modern_tech_twist_wcvitd.png`;
   };
 
   useEffect(() => {
-    const visto = localStorage.getItem('visto_bloqueo_unison');
+    // CAMBIO IMPORTANTE: Nueva llave para obligar a todos a aceptar los nuevos términos legales
+    const visto = localStorage.getItem('visto_aviso_legal_const_v1');
     if (!visto) setShowCoffee(true);
+    
     actualizarContador();
     resetearYBuscar();
   }, []);
@@ -39,7 +42,8 @@ export default function Home() {
 
   const actualizarContador = async () => {
     try {
-      const res = await fetch('/api/contador');
+      // Truco Anti-Caché: Agregamos ?t=tiempo para que Cloudflare intente traer el dato fresco
+      const res = await fetch(`/api/contador?t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       if (data.count) setContador(data.count.toLocaleString() + " reseñas");
     } catch (e) {}
@@ -66,7 +70,6 @@ export default function Home() {
       const lista = result.data || result;
 
       if (append) {
-        // CORRECCIÓN AQUÍ: Filtramos duplicados antes de agregar
         setProfesores(prev => {
           const idsExistentes = new Set(prev.map(p => p.id));
           const nuevosUnicos = lista.filter(p => !idsExistentes.has(p.id));
@@ -109,6 +112,12 @@ export default function Home() {
     }
   };
 
+  // Función para cerrar el aviso legal y guardar la preferencia
+  const aceptarTerminos = () => {
+    setShowCoffee(false);
+    localStorage.setItem('visto_aviso_legal_const_v1', 'true');
+  };
+
   return (
     <div className="main-wrapper">
       <nav className="main-navbar">
@@ -119,7 +128,7 @@ export default function Home() {
         <div className={`nav-items ${menuActive ? 'active' : ''}`} id="navMenu">
           <a href="/dictionary" className="nav-link">Directorio</a>
           <a href="/politicas" className="nav-link">Políticas</a>
-          <a href="mailto:juanfernandoincognito@gmail.com" className="nav-link">Contacto</a>
+          <a href="mailto:hola@buhorater.com" className="nav-link">Contacto</a>
           <a href="https://forms.gle/zycskRMqps41jPSM9" className="nav-link">Reportar</a>
           <a href="https://www.buymeacoffee.com/starcatunison" target="_blank" className="nav-link">Donar</a>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -215,7 +224,8 @@ export default function Home() {
             return (
               <div key={p.id} className="card">
                 <img 
-                  src={p.foto_url || getAvatarDefault(p.nombre)} 
+                  // MODO SEGURO ACTIVO: Ignoramos p.foto_url
+                  src={getAvatarDefault(p.nombre)} 
                   onError={(e) => {
                     e.target.onerror = null;
                     e.target.src = getAvatarDefault(p.nombre);
@@ -248,7 +258,7 @@ export default function Home() {
         <div className="footer-links">
           <a href="/politicas" className="footer-link">Políticas</a>
           <a href="https://forms.gle/zycskRMqps41jPSM9" className="footer-link">Reportar Error</a>
-          <a href="mailto:juanfernandoincognito@gmail.com" className="footer-link">Contacto</a>
+          <a href="mailto:hola@buhorater.com" className="footer-link">Contacto</a>
         </div>
         <div className="copyright">
           © 2026 Búho Rater. No afiliado a la Universidad de Sonora.
@@ -256,15 +266,49 @@ export default function Home() {
       </footer>
 
       {showCoffee && (
-        <div id="coffee-popup" className="coffee-popup" style={{ display: 'flex' }}>
-          <div className="coffee-content">
-            <button onClick={() => { setShowCoffee(false); localStorage.setItem('visto_bloqueo_unison', 'true'); }} style={{ position: 'absolute', right: '15px', top: '15px', border: 'none', background: 'none', fontSize: '1.2rem', color: '#999', cursor: 'pointer' }}>✕</button>
-            <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>⚠️</div>
-            <p style={{ margin: '0 0 20px 0', fontSize: '0.95rem', color: 'var(--text-main)', fontWeight: 500 }}>
-             Por motivos de seguridad los promedios de los profesores se actualizan cada 12 horas. Muchas gracias a todos.
+        <div id="coffee-popup" className="coffee-popup" style={{ display: 'flex', zIndex: 99999 }}>
+          <div className="coffee-content" style={{ maxWidth: '450px', width: '90%', padding: '25px' }}>
+            
+            <div style={{ fontSize: '2.5rem', marginBottom: '10px', textAlign: 'center' }}>⚖️</div>
+            
+            <h3 style={{ margin: '0 0 15px 0', fontSize: '1.3rem', color: 'var(--text-main)', fontWeight: 'bold', textAlign: 'center' }}>
+              Aviso Legal y Transparencia
+            </h3>
+
+            <p style={{ margin: '0 0 15px 0', fontSize: '0.9rem', color: '#333', lineHeight: '1.6', textAlign: 'justify' }}>
+              Esta plataforma ejerce su derecho a la libertad de expresión amparada en los <strong>Artículos 6º y 7º de la Constitución Política de los Estados Unidos Mexicanos</strong>.
             </p>
+
+            <p style={{ margin: '0 0 15px 0', fontSize: '0.9rem', color: '#333', lineHeight: '1.6', textAlign: 'justify' }}>
+              Las reseñas reflejan opiniones de estudiantes sobre el desempeño de <strong>servidores públicos</strong> en el ejercicio de sus funciones, lo cual constituye información de interés público. 
+            </p>
+            
+            <p style={{ margin: '0 0 20px 0', fontSize: '0.9rem', color: '#333', lineHeight: '1.6', textAlign: 'justify' }}>
+              BuhoRater actúa como intermediario neutral y no se hace responsable de las opiniones individuales de los usuarios.
+            </p>
+
+            <p style={{ margin: '0 0 20px 0', fontSize: '0.8rem', color: '#888', fontStyle: 'italic', textAlign: 'center' }}>
+              *Los promedios se actualizan cada 12 horas por seguridad del servidor.
+            </p>
+
             <div style={{ marginTop: '15px' }}>
-              <span onClick={() => { setShowCoffee(false); localStorage.setItem('visto_bloqueo_unison', 'true'); }} style={{ color: '#999', textDecoration: 'underline', fontSize: '0.8rem', cursor: 'pointer' }}>Entendido</span>
+              <button 
+                onClick={aceptarTerminos} 
+                style={{ 
+                  background: 'var(--primary)', 
+                  color: '#fff', 
+                  border: 'none', 
+                  padding: '14px 25px', 
+                  borderRadius: '8px', 
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  fontSize: '1rem',
+                  width: '100%',
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                }}
+              >
+                Entendido y Acepto
+              </button>
             </div>
           </div>
         </div>
