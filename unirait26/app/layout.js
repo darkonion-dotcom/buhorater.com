@@ -7,7 +7,7 @@ export const metadata = {
   keywords: ['UNISON', 'BuhoRater', 'Profesores Unison', 'Maestros', 'Hermosillo', 'Calificaciones', 'Reseñas', 'Sonora'],
   openGraph: {
     title: 'BuhoRater - La verdad sobre tus clases',
-    description: 'Descubre qué maestros son barco y cuáles no. Opiniones 100% anónimas de estudiantes.',
+    description: 'Opiniones 100% anónimas de estudiantes.',
     url: 'https://www.buhorater.com',
     siteName: 'BuhoRater',
     images: [
