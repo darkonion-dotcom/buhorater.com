@@ -194,7 +194,7 @@ function PerfilContent() {
           </div>
           <div className="input-group1">
             <label className="label1">Comentario</label>
-            <textarea value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="¿Cómo es su clase?..." />
+            <textarea value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Sé específico: habla sobre la carga de tareas, la claridad al explicar y el material de apoyo. Las reseñas útiles ayudan a la comunidad; los ataques personales no se publican." />
           </div>
           
           <div id="captcha-box"></div>
