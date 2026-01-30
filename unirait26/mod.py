@@ -3,17 +3,14 @@ import requests
 import json
 
 def obtener_pais_ip(request_headers):
-    
     pais = (
         request_headers.get('Cf-Ipcountry') or 
         request_headers.get('cf-ipcountry') or 
         request_headers.get('X-Vercel-Ip-Country') or 
         request_headers.get('x-vercel-ip-country')
     )
-    
     if pais:
         return pais.upper()
-        
     return "MX"
 
 def verificar_contenido_toxico(texto):
@@ -21,30 +18,28 @@ def verificar_contenido_toxico(texto):
     
     if not api_key:
         print("❌ ERROR MODERACIÓN: No se encontró la variable OPENAI_API_KEY.")
-        return False, []
+        return False, ["default"]
 
     system_prompt = """
-Eres el OFICIAL DE CUMPLIMIENTO LEGAL y Moderador de "BuhoRater" (UNISON).
-TU MISIÓN CRÍTICA: Proteger la plataforma de demandas por "Daño Moral" o "Difamación".
+Eres el OFICIAL DE CUMPLIMIENTO LEGAL de "BuhoRater" (UNISON). 
+Tu misión es clasificar reseñas para evitar Daño Moral y Difamación.
 
 DIFERENCIA CLAVE:
-- OPINIÓN (Permitido): "Su clase es mala", "No sabe explicar", "Es muy estricto", "Es un barco".
-- DIFAMACIÓN/DELITO (Prohibido): "Vende calificaciones", "Acosa alumnas", "Es corrupto", "Llega borracho".
+- PERMITIDO: Críticas al desempeño docente, puntualidad, dificultad o carácter (ej: "es barco", "no explica").
+- PROHIBIDO: Imputación de delitos, ataques físicos o revelar vida privada.
 
-✅ APROBAR (PASS) - CRÍTICA ACADÉMICA Y SUBJETIVA:
-1. Desempeño Laboral: "Es aburrido", "No prepara clase", "Llega tarde", "Es injusto calificando".
-2. Dificultad/Facilidad: "Es un barco", "Regala calificación", "Imposible pasar", "Muy perro".
-3. Sentimientos del Alumno: "Me cae mal", "La odio", "Es insoportable" (Son opiniones subjetivas, no hechos).
-4. Lenguaje Coloquial: "Wey", "Chale", "No mames", "Está cabrón", "Hueva".
+❌ CATEGORÍAS DE RECHAZO (Usa estrictamente estas etiquetas en 'motivos'):
+1. "acusacion_delictiva": Si menciona corrupción, venta de notas, acoso, robos o cualquier delito.
+2. "vida_personal": Si habla de familia, relaciones amorosas, divorcios o datos de contacto (teléfono/correo).
+3. "insulto_grave": Si usa groserías, lenguaje vulgar, odio o incita a la violencia.
+4. "ataque_identidad": Si menciona el físico (ej: "está gordo", "es pelón"), vestimenta, género o raza. TOLERANCIA CERO AL FÍSICO.
+5. "spam": Si es texto sin sentido o publicidad.
 
-❌ RECHAZAR (REJECT) - RIESGO LEGAL O PERSONAL (TOLERANCIA CERO):
-1. IMPUTACIÓN DE DELITOS (Sin pruebas): "Pide dinero", "Vende plazas", "Acosador", "Ratero", "Corrupto", "Drogadicto".
-2. VIDA PRIVADA: "Tiene un amante", "Se está divorciando", "Vive en...", "Su hijo es...".
-3. ATAQUES FÍSICOS/DISCRIMINACIÓN: "Gordo asqueroso", "Vieja loca", "Maricón", "Indio", "Retrasado".
-4. INCITACIÓN AL ODIO/VIOLENCIA: "Vamos a golpearlo", "Ojalá se muera", "Hay que funarlo en su casa".
-5. SPAM/SIN SENTIDO: "asdfghjkl", "puto puto puto", publicidad externa.
-
-Responde estrictamente en JSON: { "decision": "PASS" o "REJECT", "motivos": ["Explica brevemente por qué"] }
+Responde estrictamente en JSON: 
+{ 
+  "decision": "PASS" o "REJECT", 
+  "motivos": ["etiqueta_correspondiente"] 
+}
 """
 
     url = "https://api.openai.com/v1/chat/completions"
@@ -57,7 +52,7 @@ Responde estrictamente en JSON: { "decision": "PASS" o "REJECT", "motivos": ["Ex
             {"role": "user", "content": f"Reseña: '{texto}'"}
         ],
         "temperature": 0.0,
-        "max_tokens": 150,
+        "max_tokens": 100,
         "response_format": { "type": "json_object" }
     }
     
@@ -65,19 +60,21 @@ Responde estrictamente en JSON: { "decision": "PASS" o "REJECT", "motivos": ["Ex
         response = requests.post(url, headers=headers, json=payload, timeout=8)
         
         if response.status_code != 200: 
-            print(f"ERROR AI ({response.status_code}): {response.text}")
             return False, [] 
 
         data = response.json()
         resultado = json.loads(data['choices'][0]['message']['content'])
         
-        print(f"Moderación: {resultado.get('decision')} | Texto: {texto[:30]}...")
+        decision = resultado.get("decision")
+        motivos = resultado.get("motivos", ["default"])
         
-        if resultado.get("decision") == "REJECT":
-            return True, resultado.get("motivos", [])
+        print(f"Moderación: {decision} | Motivo: {motivos} | Texto: {texto[:20]}...")
+        
+        if decision == "REJECT":
+            return True, motivos 
         
         return False, []
 
     except Exception as e:
-        print(f"ERROR CRÍTICO EN MODERACIÓN: {str(e)}")
+        print(f"ERROR: {str(e)}")
         return False, []
