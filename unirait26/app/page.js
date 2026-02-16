@@ -1,18 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from 'react';
 
-const getInitials = (n) => {
-  if (!n) return "?";
-  const s = n.split(' ');
-  return s.length >= 2 ? (s[0][0] + s[1][0]).toUpperCase() : n[0].toUpperCase();
-};
-
-const getColor = (n) => {
-  let h = 0;
-  for (let i = 0; i < n.length; i++) h = n.charCodeAt(i) + ((h << 5) - h);
-  return `hsl(${Math.abs(h) % 360}, 60%, 45%)`;
-};
-
 export default function Home() {
   const [profesores, setProfesores] = useState([]);
   const [paginaActual, setPaginaActual] = useState(0);
@@ -128,7 +116,7 @@ export default function Home() {
       <nav className="main-navbar">
         <button className="hamburger-btn" onClick={() => setMenuActive(!menuActive)}>☰</button>
         <a href="/" className="nav-brand">
-          <img src="logo.png" alt="Logo Búho Rater" className="logo-img" />
+          <img src="/logo.png" alt="Logo Búho Rater" className="logo-img" style={{ height: '40px', width: 'auto' }} />
         </a>
         <div className={`nav-items ${menuActive ? 'active' : ''}`} id="navMenu">
           <a href="/dictionary" className="nav-link">Directorio</a>
@@ -228,9 +216,11 @@ export default function Home() {
 
             return (
               <div key={p.id} className="card">
-                <div style={{ backgroundColor: getColor(p.nombre), width: '80px', height: '80px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '1.5rem', margin: '0 auto 10px', userSelect: 'none' }}>
-                  {getInitials(p.nombre)}
-                </div>
+                <img 
+                  src="/logo.png" 
+                  alt={p.nombre} 
+                  style={{ width: '80px', height: '80px', objectFit: 'contain', margin: '0 auto 10px', display: 'block' }} 
+                />
                 <div className="card-info">
                   {p.es_colaborador && <div className="badge-collab">Colaborador</div>}
                   <h3>{p.nombre}</h3>
