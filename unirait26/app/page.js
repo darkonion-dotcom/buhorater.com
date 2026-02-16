@@ -116,7 +116,12 @@ export default function Home() {
       <nav className="main-navbar">
         <button className="hamburger-btn" onClick={() => setMenuActive(!menuActive)}>☰</button>
         <a href="/" className="nav-brand">
-          <img src="/logo.png" alt="Logo Búho Rater" className="logo-img" style={{ height: '40px', width: 'auto' }} />
+          <img 
+            src="/logo.png" 
+            alt="Logo Búho Rater" 
+            className="logo-img" 
+            style={{ height: '40px', width: 'auto', display: 'block' }} 
+          />
         </a>
         <div className={`nav-items ${menuActive ? 'active' : ''}`} id="navMenu">
           <a href="/dictionary" className="nav-link">Directorio</a>
@@ -216,11 +221,15 @@ export default function Home() {
 
             return (
               <div key={p.id} className="card">
-                <img 
-                  src="/logo.png" 
-                  alt={p.nombre} 
-                  style={{ width: '80px', height: '80px', objectFit: 'contain', margin: '0 auto 10px', display: 'block' }} 
-                />
+                <div style={{ width: '80px', height: '80px', margin: '0 auto 10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <img 
+                      src="/logo.png" 
+                      alt={p.nombre} 
+                      style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} 
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                </div>
+                
                 <div className="card-info">
                   {p.es_colaborador && <div className="badge-collab">Colaborador</div>}
                   <h3>{p.nombre}</h3>
