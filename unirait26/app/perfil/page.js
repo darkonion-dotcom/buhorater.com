@@ -18,7 +18,7 @@ function PerfilContent() {
   const [dificultad, setDificultad] = useState("3");
   const [texto, setTexto] = useState("");
   const getAvatarDefault = (nombre) => {
-    return `https://res.cloudinary.com/dyqoqobg2/image/upload/v1767981066/Geometric_owl_logo_with_modern_tech_twist_wcvitd.png`;
+    return `/logo.png`;
   };
 
   useEffect(() => {

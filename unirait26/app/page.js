@@ -221,15 +221,11 @@ export default function Home() {
 
             return (
               <div key={p.id} className="card">
-                <div style={{ width: '80px', height: '80px', margin: '0 auto 10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <img 
-                      src="/logo.png" 
-                      alt={p.nombre} 
-                      style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} 
-                      onError={(e) => { e.target.style.display = 'none'; }}
-                    />
-                </div>
-                
+                <img 
+                  src="/logo.png" 
+                  alt={p.nombre} 
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
                 <div className="card-info">
                   {p.es_colaborador && <div className="badge-collab">Colaborador</div>}
                   <h3>{p.nombre}</h3>
