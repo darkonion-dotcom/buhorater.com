@@ -222,7 +222,7 @@ export default function Home() {
             return (
               <div key={p.id} className="card">
                 <img 
-                  src="/logo.png" 
+                  src="/logo2.png" 
                   alt={p.nombre} 
                   onError={(e) => { e.target.style.display = 'none'; }}
                 />

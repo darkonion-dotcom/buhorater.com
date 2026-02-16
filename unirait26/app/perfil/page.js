@@ -18,7 +18,7 @@ function PerfilContent() {
   const [dificultad, setDificultad] = useState("3");
   const [texto, setTexto] = useState("");
   const getAvatarDefault = (nombre) => {
-    return `/logo.png`;
+    return `/logo2.png`;
   };
 
   useEffect(() => {
