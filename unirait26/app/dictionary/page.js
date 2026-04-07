@@ -39,7 +39,7 @@ export default function Directorio() {
 
       <nav className="main-navbar">
         <a href="/">
-          <img src="https://res.cloudinary.com/dyqoqobg2/image/upload/v1767981066/Geometric_owl_logo_with_modern_tech_twist_wcvitd.png" className="logo-img" alt="Logo Búho Rater" />
+          <img src="/logo.png" className="logo-img" alt="Logo Búho Rater" />
         </a>
         <div style={{ fontWeight: 700, color: '#004689' }}>DIRECTORIO OFICIAL</div>
       </nav>

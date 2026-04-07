@@ -126,7 +126,7 @@ export default function Home() {
         <div className={`nav-items ${menuActive ? 'active' : ''}`} id="navMenu">
           <a href="/dictionary" className="nav-link">Directorio</a>
           <a href="/politicas" className="nav-link">Políticas</a>
-          <a href="mailto:hola@buhorater.com" className="nav-link">Contacto</a>
+          <a href="mailto:juanfernandoincognito@gmail.com" className="nav-link">Contacto</a>
           <a href="https://forms.gle/zycskRMqps41jPSM9" className="nav-link">Reportar</a>
           <a href="https://www.buymeacoffee.com/starcatunison" target="_blank" className="nav-link">Donar</a>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>

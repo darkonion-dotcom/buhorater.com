@@ -14,7 +14,7 @@ export default function Politicas() {
         <button className="hamburger-btn2" onClick={toggleMenu}>☰</button>
         <a href="/" className="nav-brand2">
           <img 
-            src="https://res.cloudinary.com/dyqoqobg2/image/upload/v1767981066/Geometric_owl_logo_with_modern_tech_twist_wcvitd.png" 
+            src="/logo.png" 
             alt="Logo Búho Rater" 
             className="logo-img2" 
           />
@@ -22,7 +22,7 @@ export default function Politicas() {
         <div className={`nav-items2 ${menuActive ? 'active' : ''}`} id="navMenu2">
           <a href="/dictionary" className="nav-link2">Directorio</a>
           <a href="/politicas" className="nav-link2" style={{ color: '#004689' }}>Políticas</a>
-          <a href="mailto:hola" className="nav-link2">Contacto</a>
+          <a href="mailto:juanfernandoincognito@gmail.com" className="nav-link2">Contacto</a>
           <a href="https://forms.gle/zycskRMqps41jPSM9" className="nav-link2">Reportar</a>
           <a href="https://www.buymeacoffee.com/starcatunison" target="_blank" className="nav-link2">Donar</a>
         </div>

@@ -48,7 +48,7 @@ function ContenidoHorario3() {
       <nav className="main-navbar3">
         {/* USAMOS <a> PARA FORZAR RECARGA DEL INDEX */}
         <a href="/" className="nav-brand3">
-          <img src="https://res.cloudinary.com/dyqoqobg2/image/upload/v1767981066/Geometric_owl_logo_with_modern_tech_twist_wcvitd.png" className="logo-img3" alt="Búho Rater" />
+          <img src="/logo.png" className="logo-img3" alt="Búho Rater" />
         </a>
         <div className="nav-items3">
           <a href="/" className="nav-link3" style={{ textDecoration: 'none', color: '#4b5563', fontWeight: '600', fontSize: '0.95rem' }}>INICIO</a>
@@ -95,7 +95,7 @@ function ContenidoHorario3() {
       <footer className="main-footer3">
         <div className="footer-links3">
           <a href="/politicas" className="footer-link3">Políticas</a>
-          <a href="mailto:contacto@buhorater.com" className="footer-link3">Contacto</a>
+          <a href="mailto:juanfernandoincognito" className="footer-link3">Contacto</a>
         </div>
         <p style={{ color: '#9ca3af', fontSize: '0.85rem', marginTop: '10px' }}>© 2026 Búho Rater. No afiliado a la Universidad de Sonora.</p>
       </footer>
