@@ -8,9 +8,10 @@ const supabaseAdmin = createClient(
 
 export async function GET() {
   try {
-    const { count, error } = await supabaseAdmin
+      const { count, error } = await supabaseAdmin
       .from('resenas')
-      .select('*', { count: 'exact', head: true });
+      .select('*', { count: 'exact', head: true })
+      .eq('aprobada', true); // <--- Solo cuenta las reseñas que pasaron el filtro
 
     if (error) throw error;
 

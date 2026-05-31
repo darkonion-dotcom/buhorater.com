@@ -29,8 +29,28 @@ export default function RootLayout({ children }) {
       <head>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦉</text></svg>" />
       </head>
-      <body>
+      {/* EL PASE VIP DE HIDRATACIÓN ESTÁ AQUÍ ABAJO */}
+      <body suppressHydrationWarning>
+        
+        {/* INICIO DEL SCRIPT GUARDIÁN DEL MODO OSCURO */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var tema = localStorage.getItem('tema_buhorater');
+                  if (tema === 'dark') {
+                    document.body.classList.add('dark-theme');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+        {/* FIN DEL SCRIPT GUARDIÁN */}
+
         {children}
+
         <Script 
           src="https://challenges.cloudflare.com/turnstile/v0/api.js" 
           strategy="beforeInteractive" 

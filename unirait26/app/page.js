@@ -14,6 +14,9 @@ export default function Home() {
   const [filtroDepto, setFiltroDepto] = useState("todos");
   const [filtroOrden, setFiltroOrden] = useState("nombre");
   const [busqueda, setBusqueda] = useState("");
+  
+  // 1. NUEVO ESTADO: Control del Modo Oscuro
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const fileInputRef = useRef(null);
   const tamanoPagina = 48;
@@ -22,9 +25,31 @@ export default function Home() {
     const visto = localStorage.getItem('visto_aviso_legal_const_v1');
     if (!visto) setShowCoffee(true);
     
+    // 2. MEMORIA: Revisar si el usuario ya tenía el modo oscuro activo antes
+    const temaGuardado = localStorage.getItem('tema_buhorater');
+    if (temaGuardado === 'dark') {
+      setIsDarkMode(true);
+      document.body.classList.add('dark-theme');
+    }
+    
     actualizarContador();
     resetearYBuscar();
   }, []);
+
+  // 3. FUNCIÓN TOGGLE: El interruptor de la luz
+  const toggleTheme = () => {
+    setIsDarkMode((prevMode) => {
+      const newMode = !prevMode;
+      if (newMode) {
+        document.body.classList.add('dark-theme');
+        localStorage.setItem('tema_buhorater', 'dark');
+      } else {
+        document.body.classList.remove('dark-theme');
+        localStorage.setItem('tema_buhorater', 'light');
+      }
+      return newMode;
+    });
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -133,6 +158,22 @@ export default function Home() {
             <div className="punto-rojo"></div>
             <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{contador}</span>
           </div>
+          
+          {/* 4. BOTÓN TOGGLE: Agregado a la derecha del menú */}
+          <button 
+            onClick={toggleTheme} 
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '1.4rem',
+              marginLeft: '10px',
+              padding: '5px'
+            }}
+            aria-label="Cambiar tema"
+          >
+            {isDarkMode ? '☀️' : '🌙'}
+          </button>
         </div>
       </nav>
 

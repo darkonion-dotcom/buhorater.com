@@ -13,7 +13,7 @@ export async function GET(request) {
   }
 
   try {
-    const { error } = await supabase.rpc('actualizar_promedios_maestros');
+   const { error } = await supabase.rpc('ejecutar_mantenimiento_bunker');
 
     if (error) throw error;
 

@@ -579,3 +579,123 @@ input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px v
     margin-top: 10px;
   }
 }
+body.dark-theme {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* =========================================
+   DARK MODE OVERRIDES (SISTEMA COMPLETO)
+========================================= */
+
+body.dark-theme {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* --- 1. FONDOS PRINCIPALES Y LAYOUTS --- */
+body.dark-theme .main-wrapper,
+body.dark-theme .content-wrapper,
+body.dark-theme .body2,
+body.dark-theme .flex-container3,
+body.dark-theme .content-wrapper3 {
+  background-color: #000000 !important;
+}
+
+/* --- 2. BARRAS DE NAVEGACIÓN Y MENÚS MÓVILES --- */
+body.dark-theme .main-navbar,
+body.dark-theme .navbar1,
+body.dark-theme .main-navbar2,
+body.dark-theme .main-navbar3,
+body.dark-theme .nav-items,
+body.dark-theme .nav-items2,
+body.dark-theme .nav-items3 {
+  background-color: #000000 !important;
+  border-bottom-color: #222222 !important;
+}
+
+body.dark-theme .nav-link,
+body.dark-theme .nav-brand,
+body.dark-theme .nav-link2,
+body.dark-theme .nav-link3,
+body.dark-theme .btn-back1,
+body.dark-theme .btn-back2 {
+  color: #ffffff !important;
+}
+
+/* --- 3. TARJETAS, CONTENEDORES Y CAJAS BLANCAS --- */
+body.dark-theme .card,
+body.dark-theme .card3,
+body.dark-theme .profile-card1,
+body.dark-theme .form-card1,
+body.dark-theme .review-card1,
+body.dark-theme .doc-container2,
+body.dark-theme .drop-zone,
+body.dark-theme .coffee-content,
+body.dark-theme .insta-toast {
+  background-color: #111111 !important; 
+  border-color: #333333 !important;
+}
+
+body.dark-theme .btn-back2 {
+  background-color: #111111 !important;
+  border-color: #333333 !important;
+}
+
+/* Cajas de alerta especiales (Políticas) */
+body.dark-theme .alert-box2 {
+  background-color: #1a202c !important; /* Azul muy oscuro en lugar de blanco/celeste */
+  border-color: #2d3748 !important;
+}
+
+/* --- 4. TEXTOS, TÍTULOS Y PÁRRAFOS --- */
+body.dark-theme h1, body.dark-theme h2, body.dark-theme h3,
+body.dark-theme .h1-1, body.dark-theme .h1-2, body.dark-theme .h2-2, body.dark-theme .h1-3,
+body.dark-theme .alert-title2,
+body.dark-theme .card-info3 h3 {
+  color: #ffffff !important;
+}
+
+body.dark-theme p, 
+body.dark-theme .depto, 
+body.dark-theme .depto3,
+body.dark-theme .drop-text,
+body.dark-theme .review-text1,
+body.dark-theme .dept-text1,
+body.dark-theme .subtitle2,
+body.dark-theme .p-2,
+body.dark-theme .li-2,
+body.dark-theme .label1,
+body.dark-theme .reviews-section-title1,
+body.dark-theme .insta-text p,
+body.dark-theme .trigger-hint1 {
+  color: #e0e0e0 !important;
+}
+
+/* --- 5. INPUTS, TEXTAREAS Y SELECTS --- */
+body.dark-theme .search-container input,
+body.dark-theme .filtros-container select,
+body.dark-theme .form-card1 select,
+body.dark-theme .form-card1 textarea,
+body.dark-theme .share-input3 {
+  background-color: #111111 !important;
+  color: #ffffff !important;
+  border-color: #333333 !important;
+}
+
+body.dark-theme .form-card1 select:focus, 
+body.dark-theme .form-card1 textarea:focus,
+body.dark-theme .search-container input:focus,
+body.dark-theme .share-input3:focus {
+  border-color: var(--primary) !important;
+}
+
+/* --- 6. FIXES ESPECÍFICOS --- */
+body.dark-theme .insta-text strong,
+body.dark-theme .insta-close {
+  color: #ffffff !important;
+}
+
+body.dark-theme .stat-label1 {
+  color: #a0aec0 !important;
+}
