@@ -699,3 +699,102 @@ body.dark-theme .insta-close {
 body.dark-theme .stat-label1 {
   color: #a0aec0 !important;
 }
+/* =========================================
+   DARK MODE: PÁGINA DEL DIRECTORIO
+========================================= */
+
+/* 1. Fondo de la página (reemplaza el gris por negro) */
+body.dark-theme .directorio-wrapper {
+  background-color: #000000 !important;
+}
+
+/* 2. Barra de navegación superior */
+body.dark-theme .directorio-wrapper .main-navbar {
+  background-color: #000000 !important;
+  border-bottom-color: #222222 !important;
+}
+
+/* 3. Títulos y Textos principales */
+body.dark-theme .directorio-wrapper .h1-dir,
+body.dark-theme .directorio-wrapper .stats {
+  color: #ffffff !important;
+}
+
+/* 4. Texto del botón de volver */
+body.dark-theme .directorio-wrapper .btn-volver {
+  color: #e0e0e0 !important;
+}
+
+/* 5. La caja contenedora de los nombres (reemplaza lo blanco) */
+body.dark-theme .directorio-wrapper .grid-directorio {
+  background-color: #111111 !important;
+  border-color: #333333 !important;
+  box-shadow: none !important; /* Quitamos la sombra para que se vea más limpio en oscuro */
+}
+
+/* 6. Los enlaces (nombres de los profesores) */
+body.dark-theme .directorio-wrapper .link-profe {
+  color: #63b3ed !important; /* Azul más claro para que contraste bien sobre el negro */
+}
+
+body.dark-theme .directorio-wrapper .link-profe:hover {
+  color: #f1c40f !important; /* Mantenemos el hover amarillo que ya tenías */
+}
+
+/* 7. Footer del directorio */
+body.dark-theme .directorio-wrapper footer {
+  color: #888888 !important;
+}
+body.dark-theme .main-footer {
+  background-color: #000000 !important; /* Fondo negro absoluto */
+  border-top: 1px solid #222222 !important; /* Línea separadora sutil */
+}
+
+body.dark-theme .footer-link {
+  color: #e0e0e0 !important;
+}
+
+body.dark-theme .footer-link:hover {
+  color: #ffffff !important;
+}
+
+body.dark-theme .copyright {
+  color: #888888 !important;
+}
+/* =========================================
+   ESTILOS: CORREO EN PERFIL
+========================================= */
+.correo-perfil-container {
+  text-align: center;
+  margin-top: -10px; /* Lo acerca un poco más al nombre del departamento */
+  margin-bottom: 15px;
+}
+
+.correo-perfil {
+  color: var(--primary, #004689);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: rgba(0, 70, 137, 0.05); /* Fondo azul súper transparente */
+  padding: 6px 14px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.correo-perfil:hover {
+  background-color: rgba(0, 70, 137, 0.1);
+  text-decoration: underline;
+}
+
+/* Modo Oscuro para el correo en el perfil */
+body.dark-theme .correo-perfil {
+  color: #63b3ed !important;
+  background-color: rgba(99, 179, 237, 0.1) !important;
+}
+
+body.dark-theme .correo-perfil:hover {
+  background-color: rgba(99, 179, 237, 0.2) !important;
+}

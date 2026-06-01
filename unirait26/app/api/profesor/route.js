@@ -22,6 +22,7 @@ export async function GET(request) {
       .select(`
         id, 
         nombre, 
+        correo,
         foto_url, 
         promedio_calidad, 
         promedio_dificultad, 

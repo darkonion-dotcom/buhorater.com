@@ -15,7 +15,7 @@ export default function Home() {
   const [filtroOrden, setFiltroOrden] = useState("nombre");
   const [busqueda, setBusqueda] = useState("");
   
-  // 1. NUEVO ESTADO: Control del Modo Oscuro
+  // ESTADO: Control del Modo Oscuro
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   const fileInputRef = useRef(null);
@@ -25,7 +25,7 @@ export default function Home() {
     const visto = localStorage.getItem('visto_aviso_legal_const_v1');
     if (!visto) setShowCoffee(true);
     
-    // 2. MEMORIA: Revisar si el usuario ya tenía el modo oscuro activo antes
+    // MEMORIA: Revisar si el usuario ya tenía el modo oscuro activo antes
     const temaGuardado = localStorage.getItem('tema_buhorater');
     if (temaGuardado === 'dark') {
       setIsDarkMode(true);
@@ -36,7 +36,7 @@ export default function Home() {
     resetearYBuscar();
   }, []);
 
-  // 3. FUNCIÓN TOGGLE: El interruptor de la luz
+  // FUNCIÓN TOGGLE: El interruptor de la luz
   const toggleTheme = () => {
     setIsDarkMode((prevMode) => {
       const newMode = !prevMode;
@@ -81,7 +81,7 @@ export default function Home() {
         url = `/api/maestros?search=${encodeURIComponent(busqueda)}`;
       } else {
         const desde = pagina * tamanoPagina;
-        url = `/api/maestros?depto=${filtroDepto}&orden=${filtroOrden}&desde=${desde}&hasta=${desde + tamanoPagina - 1}`;
+        url = `/api/maestros?depto=${encodeURIComponent(filtroDepto)}&orden=${filtroOrden}&desde=${desde}&hasta=${desde + tamanoPagina - 1}`;
       }
 
       const res = await fetch(url);
@@ -158,22 +158,6 @@ export default function Home() {
             <div className="punto-rojo"></div>
             <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{contador}</span>
           </div>
-          
-          {/* 4. BOTÓN TOGGLE: Agregado a la derecha del menú */}
-          <button 
-            onClick={toggleTheme} 
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '1.4rem',
-              marginLeft: '10px',
-              padding: '5px'
-            }}
-            aria-label="Cambiar tema"
-          >
-            {isDarkMode ? '☀️' : '🌙'}
-          </button>
         </div>
       </nav>
 
@@ -200,6 +184,30 @@ export default function Home() {
           </div>
         </header>
 
+        {/* BOTÓN TOGGLE: Ubicado al centro */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+          <button 
+            onClick={toggleTheme} 
+            style={{
+              background: isDarkMode ? '#222' : '#fff',
+              color: isDarkMode ? '#fff' : '#333',
+              border: `1px solid ${isDarkMode ? '#444' : '#ddd'}`,
+              cursor: 'pointer',
+              fontSize: '0.95rem',
+              padding: '10px 20px',
+              borderRadius: '30px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+              fontWeight: '600',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            {isDarkMode ? '☀️ Cambiar a Modo Claro' : '🌙 Cambiar a Modo Oscuro'}
+          </button>
+        </div>
+
         <div className="search-container">
           <input 
             type="text" 
@@ -209,42 +217,68 @@ export default function Home() {
           />
         </div>
 
+        {/* SISTEMA DE FILTROS: Values Exactos basados en tu lista */}
         <div className="filtros-container">
           <select value={filtroDepto} onChange={(e) => setFiltroDepto(e.target.value)}>
             <option value="todos">🏛️ Todos los Departamentos</option>
-            <optgroup label="📐 Exactas y Naturales">
-              <option value="Matemáticas">Matemáticas</option>
-              <option value="Física">Física</option>
-              <option value="Geología">Geología</option>
-              <option value="Investigaciones Físicas">Investigaciones Físicas</option>
-              <option value="Arquitectura y Diseño">Arquitectura y Diseño</option>
+            <option value="Sindicato (STAUS)">Sindicato (STAUS)</option>
+
+            <optgroup label="📐 Ciencias Exactas y Naturales">
+              <option value="Dirección de División Ciencias Exactas y Naturales">División Ciencias Exactas y Naturales</option>
+              <option value="Departamento de Física">Física</option>
+              <option value="Departamento de Geología">Geología</option>
+              <option value="Departamento de Matemáticas">Matemáticas</option>
+              <option value="Departamento de Investigación en Física">Investigación en Física</option>
+              <option value="Departamento de Física, Matemáticas e Ingeniería">Física, Matemáticas e Ingeniería</option>
             </optgroup>
-            <optgroup label="🩺 Salud y Biológicas">
-              <option value="Agricultura">Agricultura y Ganadería</option>
-              <option value="Ciencias Químico Biológicas">Químico Biológicas</option>
-              <option value="Enfermería">Enfermería</option>
-              <option value="Medicina">Medicina y Salud</option>
-              <option value="Investigaciones Científicas">Dictus (Investigación)</option>
+
+            <optgroup label="🩺 Ciencias Biológicas y de la Salud">
+              <option value="Dirección de División de Ciencias Biológicas y de la Salud">División Ciencias Biológicas y de la Salud</option>
+              <option value="Departamento de Agricultura y Ganadería">Agricultura y Ganadería</option>
+              <option value="Departamento de Ciencias Químico-Biológicas">Ciencias Químico-Biológicas</option>
+              <option value="Departamento de Enfermería">Enfermería</option>
+              <option value="Departamento de Investigaciones Científicas y Tecnológicas">Investigaciones Científicas (DICTUS)</option>
+              <option value="Departamento de Investigación y Posgrado en Alimentos">Investigación y Posgrado en Alimentos</option>
+              <option value="Departamento de Medicina y Ciencias de la Salud">Medicina y Ciencias de la Salud</option>
+              <option value="Departamento de Ciencias del Deporte y la Actividad Física">Ciencias del Deporte</option>
+              <option value="Departamento de Ciencias de la Salud">Ciencias de la Salud</option>
+              <option value="Campo Experimental Agropecuario">Campo Experimental Agropecuario</option>
+              <option value="Departamento de Ciencias Químico-Biológicas y Agropecuarias">Ciencias Químico-Biológicas y Agropecuarias</option>
             </optgroup>
+
             <optgroup label="⚙️ Ingeniería">
-              <option value="Ingeniería Civil">Ingeniería Civil</option>
-              <option value="Ingeniería Industrial">Ingeniería Industrial</option>
-              <option value="Ingeniería Química">Ingeniería Química</option>
-              <option value="Investigación en Polímeros">Polímeros</option>
+              <option value="Dirección de División de Ingeniería">División de Ingeniería</option>
+              <option value="Departamento de Ingeniería Civil y Minas">Ingeniería Civil y Minas</option>
+              <option value="Departamento de Ingeniería Industrial">Ingeniería Industrial</option>
+              <option value="Departamento de Ingeniería Química y Metalurgia">Ingeniería Química y Metalurgia</option>
+              <option value="Departamento de Investigación en Polímeros y Materiales">Investigación en Polímeros</option>
             </optgroup>
+
             <optgroup label="💰 Económicas y Administrativas">
-              <option value="Contabilidad">Contabilidad</option>
-              <option value="Economía">Economía</option>
-              <option value="314200">Administración</option>
+              <option value="Dirección de División Ciencias Económicas y Administrativas">División Cs. Económicas y Administrativas</option>
+              <option value="Departamento de Administración">Administración</option>
+              <option value="Departamento de Contabilidad">Contabilidad</option>
+              <option value="Departamento de Economía">Economía</option>
+              <option value="Departamento de Ciencias Económico-Administrativas">Ciencias Económico-Administrativas</option>
+              <option value="Departamento de Ciencias Administrativas y Agropecuarias">Ciencias Administrativas y Agropecuarias</option>
             </optgroup>
+
             <optgroup label="⚖️ Ciencias Sociales">
-              <option value="Derecho">Derecho</option>
-              <option value="Psicología">Psicología y Comunicación</option>
-              <option value="Sociología">Sociología y Admón Pública</option>
-              <option value="Trabajo Social">Trabajo Social</option>
-              <option value="Bellas Artes">Bellas Artes</option>
-              <option value="Letras y Lingüística">Letras y Lingüística</option>
-              <option value="Lenguas Extranjeras">Lenguas Extranjeras</option>
+              <option value="Dirección de División de Ciencias Sociales">División de Ciencias Sociales</option>
+              <option value="Departamento de Historia y Antropología">Historia y Antropología</option>
+              <option value="Departamento de Derecho">Derecho</option>
+              <option value="Departamento de Psicología y Ciencias de la Comunicación">Psicología y Comunicación</option>
+              <option value="Departamento de Sociología y Administración Pública">Sociología y Administración Pública</option>
+              <option value="Departamento de Trabajo Social">Trabajo Social</option>
+              <option value="Departamento de Ciencias Sociales">Ciencias Sociales</option>
+            </optgroup>
+
+            <optgroup label="🎭 Humanidades y Bellas Artes">
+              <option value="Dirección de División de Humanidades y Bellas Artes">División de Humanidades y Bellas Artes</option>
+              <option value="Departamento de Bellas Artes">Bellas Artes</option>
+              <option value="Departamento de Lenguas Extranjeras">Lenguas Extranjeras</option>
+              <option value="Departamento de Letras y Lingüística">Letras y Lingüística</option>
+              <option value="Departamento de Arquitectura y Diseño">Arquitectura y Diseño</option>
             </optgroup>
           </select>
           <select value={filtroOrden} onChange={(e) => setFiltroOrden(e.target.value)}>

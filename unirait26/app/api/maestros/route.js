@@ -10,7 +10,10 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   
   // 1. LIMPIEZA Y LÍMITES DE SEGURIDAD
-  const search = searchParams.get('search')?.replace(/[%_]/g, '').trim();
+  const rawSearch = searchParams.get('search');
+  // 🔥 ESCUDO ANTI-CRASH: Solo aplicamos replace y trim si rawSearch realmente tiene texto
+  const search = rawSearch ? rawSearch.replace(/[%_]/g, '').trim() : '';
+  
   const depto = searchParams.get('depto');
   const orden = searchParams.get('orden');
   
@@ -19,8 +22,8 @@ export async function GET(request) {
   let hasta = Math.min(desde + 47, parseInt(searchParams.get('hasta')) || desde + 47);
 
   try {
-    // Definimos qué columnas queremos (especificidad = velocidad)
-    const columnas = 'id, nombre, foto_url, promedio_calidad, es_colaborador, departamentos(nombre)';
+    // 🔥 AGREGAMOS 'correo' a las columnas para que salga en las tarjetas
+    const columnas = 'id, nombre, correo, foto_url, promedio_calidad, es_colaborador, departamentos(nombre)';
     let query = supabaseAdmin.from('maestros');
 
     // 2. LÓGICA DE BÚSQUEDA PROTEGIDA
@@ -73,6 +76,6 @@ export async function GET(request) {
 
   } catch (err) {
     console.error("Error crítico en Búsqueda API:", err.message);
-    return NextResponse.json({ error: 'Falla en la consulta del búnker' }, { status: 500 });
+    return NextResponse.json({ error: 'Falla en la consulta' }, { status: 500 });
   }
 }

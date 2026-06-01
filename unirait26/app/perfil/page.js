@@ -132,6 +132,13 @@ function PerfilContent() {
           />
           <h1 className="h1-1">{profe.nombre}</h1>
           <div className="dept-text1">{profe.departamentos?.nombre || 'General'}</div>
+          {profe.correo && (
+            <div className="correo-perfil-container">
+              <a href={`mailto:${profe.correo}`} className="correo-perfil">
+                 {profe.correo.toLowerCase()}
+              </a>
+            </div>
+          )}
           
           <div className="stats-trigger1" onClick={() => setShowBreakdown(!showBreakdown)} style={{ cursor: 'pointer' }}>
             <div className="stats-grid1">
